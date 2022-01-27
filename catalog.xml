@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://testcfdi.dfacture.com/ServiceFacturacion.svc?wsdl" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/testcfdi.dfacture.com/ServiceFacturacion.svc.wsdl"/>
+    <system systemId="http://testcfdi.dfacture.com/ServiceFacturacion.svc?xsd=xsd0" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/testcfdi.dfacture.com/ServiceFacturacion.svc.xsd_xsd0.xsd"/>
+    <system systemId="http://testcfdi.dfacture.com/ServiceFacturacion.svc?xsd=xsd1" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/testcfdi.dfacture.com/ServiceFacturacion.svc.xsd_xsd1.xsd"/>
+    <system systemId="http://testcfdi.dfacture.com/ServiceFacturacion.svc?xsd=xsd2" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/testcfdi.dfacture.com/ServiceFacturacion.svc.xsd_xsd2.xsd"/>
+    <system systemId="http://testcfdi.dfacture.com/ServiceFacturacion.svc?xsd=xsd3" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/testcfdi.dfacture.com/ServiceFacturacion.svc.xsd_xsd3.xsd"/>
+    <system systemId="http://cfdi.dfacture.com/ServiceFacturacion.svc?wsdl" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/ServiceFacturacion.svc.wsdl"/>
+    <system systemId="http://cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc?xsd=xsd0" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc.xsd_xsd0.xsd"/>
+    <system systemId="http://cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc?xsd=xsd1" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc.xsd_xsd1.xsd"/>
+    <system systemId="http://cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc?xsd=xsd2" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc.xsd_xsd2.xsd"/>
+    <system systemId="http://cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc?xsd=xsd3" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc.xsd_xsd3.xsd"/>
+    <system systemId="http://cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc?xsd=xsd4" uri="xml-resources/web-service-references/ServiceFacturacion/wsdl/cfdi.dfacture.com/TimbradoSoap/ServiceFacturacion.svc.xsd_xsd4.xsd"/>
+    <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?wsdl" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.wsdl"/>
+    <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?xsd=xsd0" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.xsd_xsd0.xsd"/>
+    <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?xsd=xsd1" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.xsd_xsd1.xsd"/>
+    <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?xsd=xsd2" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.xsd_xsd2.xsd"/>
+    <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl"/>
+    <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd0" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd0.xsd"/>
+    <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd1" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd1.xsd"/>
+    <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd2" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd2.xsd"/>
+</catalog>
