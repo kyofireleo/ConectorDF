@@ -28,7 +28,6 @@ import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,18 +39,16 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import mx.grupocorasa.sat.cfd._33.Comprobante;
-import mx.grupocorasa.sat.cfd._33.Comprobante.CfdiRelacionados;
-import mx.grupocorasa.sat.cfd._33.Comprobante.Complemento;
-import mx.grupocorasa.sat.cfdi.v3.CFDv33;
+import mx.grupocorasa.sat.cfd._40.Comprobante;
+import mx.grupocorasa.sat.cfd._40.Comprobante.CfdiRelacionados;
+import mx.grupocorasa.sat.cfd._40.Comprobante.Complemento;
+import mx.grupocorasa.sat.cfdi.v4.CFDv4;
+import mx.grupocorasa.sat.cfdi.v4.CFDv40;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.FiguraTransporte;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.Mercancias;
@@ -1326,18 +1323,19 @@ public class ConstruirXML {
          */
 
         //Objetos para crear CFDv33
-        mx.grupocorasa.sat.cfd._33.ObjectFactory of = new mx.grupocorasa.sat.cfd._33.ObjectFactory();
+        mx.grupocorasa.sat.cfd._40.ObjectFactory of = new mx.grupocorasa.sat.cfd._40.ObjectFactory();
         Comprobante comp = crearComprobante(of);
 
         //Creamos un CFDv33
         Thread.currentThread().setContextClassLoader(new ClassLoader() {
         });
-        CFDv33 cfd = null;
+        CFDv4 cfd = null;
         
         tipoComprobante = get("TIPO_COMPROBANTE:");
         
         try {
             String folder;
+            String context;
             
             if (!ConectorDF.unidad.contains(":")) {
                 folder = ":\\Facturas\\config\\";
@@ -1345,57 +1343,30 @@ public class ConstruirXML {
                 folder = "\\Facturas\\config\\";
             }
             
-            String schema;
             switch (tipoComprobante) {
-                case "D":
-                    //schema = "mx.bigdata.sat.common.donat.v11.schema";
-                    cfd = new CFDv33(comp);
-                    break;
                 case "N":
-                    //schema = "mx.bigdata.sat.common.nomina.v12.schema";
-                    cfd = new CFDv33(comp);
-                    break;
-                case "recibo de nomina":
-                    //schema = "mx.bigdata.sat.common.nomina.v12.schema";
-                    cfd = new CFDv33(comp);
-                    break;
-                case "I":
-                    //schema = "mx.bigdata.sat.cfdi.v33.schema";
-//                    if(getImpuestosLocales() != null){
-//                        schema = "mx.bigdata.sat.common.implocal.schema";
-//                    }
-                    cfd = new CFDv33(comp);
-//                    if(schema.contains("implocal")){
-//                        cfd.addNamespace("http://www.sat.gob.mx/implocal", "implocal");
-//                        cfd.addNamespace(uuid, serie);
-//                    }
-                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_3_3.xslt";
+                    context = "mx.grupocorasa.sat.common.nomina12";
+                    xslt = ConectorDF.unidad + folder + "nomina12.xslt";
                     break;
                 case "F":
-                    //schema = "mx.bigdata.sat.cfdi.v33.schema";
-                    cfd = new CFDv33(comp);
+                    context = "mx.grupocorasa.sat.common.ine10";
                     xslt = ConectorDF.unidad + folder + "ine10.xslt";
                     break;
-                case "E":
-                    //schema = "mx.bigdata.sat.cfdi.v33.schema";
-                    cfd = new CFDv33(comp);
-                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_3_3.xslt";
-                    break;
                 case "T":
-                    //schema = "mx.bigdata.sat.cfdi.v33.schema";
-                    cfd = new CFDv33(comp);
-                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_3_3.xslt";
+                    context = "mx.grupocorasa.sat.common.CartaPorte20";
+                    xslt = ConectorDF.unidad + folder + "CartaPorte20.xslt";
                     break;
                 case "P":
-                    //schema = "mx.bigdata.sat.common.pagos.schema";
-                    cfd = new CFDv33(comp);
-                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_3_3.xslt";
+                    context = "mx.grupocorasa.sat.common.Pagos20";
+                    xslt = ConectorDF.unidad + folder + "Pagos20.xslt";
                     break;
                 default:
-                    cfd = new CFDv33(comp);
-                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_3_3.xslt";
+                    context = "mx.grupocorasa.sat.cfd._40";
+                    xslt = ConectorDF.unidad + folder + "cadenaoriginal_4_0.xslt";
                     break;
             }
+            
+            cfd = new CFDv40(comp, context);
 
             /**
              * ****Se crea el string del json para domicilios*****
@@ -1410,14 +1381,16 @@ public class ConstruirXML {
             String contra = util.leerXml(ConectorDF.unidad + folder + getRfcEmisor() + "_pass.txt").trim();
             PrivateKey key = KeyLoader.loadPKCS8PrivateKey(archivoKey, contra);
             X509Certificate cert = KeyLoader.loadX509Certificate(archivoCer);
-            Comprobante c;
+            
             try {
-                c = cfd.sellarComprobante(key, cert);
+                cfd.sellar(key, cert);
             } catch (Exception e) {
-                c = null;
                 System.err.println(e.getMessage());
                 e.printStackTrace();
                 log.error("Error al sellar el comprobante: ", e);
+                util.printError("Error al sellar el comprobante: " + e.getMessage());
+                Runtime.getRuntime().gc();
+                return;
             }
             
             ErrorHandler eh = new ErrorHandler() {
@@ -1438,37 +1411,18 @@ public class ConstruirXML {
                 }
             };
             
-            if (c != null) {
-                this.sello = c.getSello();
-                try {
-                    FileOutputStream fos = new FileOutputStream(pathInt + nameXml + ".xml");
-                    Marshaller m = cfd.createMarshaller();
-                    m.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NamespacePrefixMapperImpl(cfd.getLocalPrefixes()));
-                    m.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                    m.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, String.join(" ", cfd.getSchemaLocation()));
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    Writer writer = new OutputStreamWriter(baos, StandardCharsets.UTF_8);
-                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-                    m.marshal(c, writer);
-                    String xml = baos.toString("UTF-8")
-                            .replace("xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\" ", "")
-                            .replace(" http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigital.xsd", "")
-                            .replace("<tfd:TimbreFiscalDigital", "<tfd:TimbreFiscalDigital xsi:schemaLocation=\"http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/TimbreFiscalDigital/TimbreFiscalDigital.xsd\" xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\"");
-                    fos.write(xml.getBytes(StandardCharsets.UTF_8));
-                    //cfd.guardar(fos, true);
-                    fos.close();
-                } catch (IOException | JAXBException e) {
-                    e.printStackTrace();
-                    log.error("Error al guardar el comprobante sellado: ", e);
-                }
-                Runtime.getRuntime().gc();
-                
-                xmlNoTimbrado = (util.leerXml(pathInt + nameXml + ".xml"));
-            } else {
-                Runtime.getRuntime().gc();
-                xmlNoTimbrado = null;
+            this.sello = cfd.getSelloString();
+            try {
+                FileOutputStream fos = new FileOutputStream(pathInt + nameXml + ".xml");
+                cfd.guardar(fos, true);
+                fos.close();
+            } catch (IOException | JAXBException e) {
+                e.printStackTrace();
+                log.error("Error al guardar el comprobante sellado: ", e);
             }
+            Runtime.getRuntime().gc();
+            
+            xmlNoTimbrado = (util.leerXml(pathInt + nameXml + ".xml"));
         } catch (Exception ex) {
             System.out.println("Excepcion al crear el comprobante: \n");
             ex.printStackTrace();
@@ -1525,7 +1479,7 @@ public class ConstruirXML {
         return numEmpleado;
     }
     
-    public Comprobante crearComprobante(mx.grupocorasa.sat.cfd._33.ObjectFactory of) throws Exception {
+    public Comprobante crearComprobante(mx.grupocorasa.sat.cfd._40.ObjectFactory of) throws Exception {
         Comprobante comp = of.createComprobante();
         Complemento comple = of.createComprobanteComplemento();
         Date date = new Date();
@@ -1544,7 +1498,7 @@ public class ConstruirXML {
                 cTipoComp = CTipoDeComprobante.I;
                 if (getImpuestosLocales() != null) {
                     comple.getAny().add(getImpuestosLocales());
-                    comp.getComplemento().add(comple);
+                    comp.setComplemento(comple);
                 }
                 break;
             case "E":
@@ -1555,19 +1509,19 @@ public class ConstruirXML {
                 tipoComprobante = "I";
                 cTipoComp = CTipoDeComprobante.I;
                 comple.getAny().add(crearDonatarias(mostrarLeyenda));
-                comp.getComplemento().add(comple);
+                comp.setComplemento(comple);
                 break;
             case "N":
                 tipoComprobante = "N";
                 cTipoComp = CTipoDeComprobante.N;
                 comple.getAny().add(getNomina());
-                comp.getComplemento().add(comple);
+                comp.setComplemento(comple);
                 break;
             case "recibo de nomina":
                 tipoComprobante = "N";
                 cTipoComp = CTipoDeComprobante.N;
                 comple.getAny().add(getNomina());
-                comp.getComplemento().add(comple);
+                comp.setComplemento(comple);
                 break;
             case "F":
                 tipoComprobante = "I";
@@ -1581,19 +1535,19 @@ public class ConstruirXML {
                 tipoComprobante = "P";
                 cTipoComp = CTipoDeComprobante.P;
                 comple.getAny().add(getPagos());
-                comp.getComplemento().add(comple);
+                comp.setComplemento(comple);
                 break;
         }
         
         comp.setTipoDeComprobante(cTipoComp);
         comp.setFecha(xgc);
         fechaExp = formatFecha(date);
-        comp.setVersion("3.3");
+        comp.setVersion("4.0");
         comp.setEmisor(getEmisor(of));
         comp.setReceptor(getReceptor(of));
         comp.setConceptos(getConceptos(of));
         
-        comp.setCfdiRelacionados(getCfdiRelacionados());
+        comp.getCfdiRelacionados().add(getCfdiRelacionados());
 
         /*String condicionPago = get("CONDICIONPAGO:");
         if (!condicionPago.isEmpty()) {
@@ -1718,7 +1672,7 @@ public class ConstruirXML {
         return don;
     }
     
-    private Comprobante.Receptor getReceptor(mx.grupocorasa.sat.cfd._33.ObjectFactory of) {
+    private Comprobante.Receptor getReceptor(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Receptor rec = of.createComprobanteReceptor();
         rec.setUsoCFDI(CUsoCFDI.fromValue(get("USOCFDI:")));
         
@@ -1726,8 +1680,12 @@ public class ConstruirXML {
         rec.setNombre(nombreReceptor);
         rfcReceptor = get("RFC2:");
         rec.setRfc(rfcReceptor);
-        //rec.setResidenciaFiscal(CPais.fromValue(get("RESIDENCIAFISCAL:"))); //version 4.0
-        
+        rec.setDomicilioFiscalReceptor(get("DOMICILIOFISCAL:"));
+        rec.setRegimenFiscalReceptor(CRegimenFiscal.fromValue(get("REGIMENFISCAL2:")));
+        rec.setNumRegIdTrib(null);
+        if (rec.getNumRegIdTrib() != null && rfcReceptor.equalsIgnoreCase("XEXX010101000")) {
+            rec.setResidenciaFiscal(CPais.fromValue(get("RESIDENCIAFISCAL:")));
+        }
         if (!get("CALLE2:").isEmpty()) {
             JsonObject receptor = new JsonObject();
             receptor.addProperty("calle", get("CALLE2:"));
@@ -1745,7 +1703,7 @@ public class ConstruirXML {
         return rec;
     }
     
-    private Comprobante.Emisor getEmisor(mx.grupocorasa.sat.cfd._33.ObjectFactory of) {
+    private Comprobante.Emisor getEmisor(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Emisor emi = of.createComprobanteEmisor();
         
         String regi = get("REGIMENFISCAL:");
@@ -1774,7 +1732,7 @@ public class ConstruirXML {
         return emi;
     }
     
-    private Comprobante.Conceptos getConceptos(mx.grupocorasa.sat.cfd._33.ObjectFactory of) {
+    private Comprobante.Conceptos getConceptos(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Conceptos cons = of.createComprobanteConceptos();
         Comprobante.Conceptos.Concepto con;
         int cont = 1;
@@ -1807,7 +1765,7 @@ public class ConstruirXML {
                 con.setCantidad(cant.setScale(2, RoundingMode.HALF_UP));
             }
             con.setComplementoConcepto(null);
-            con.setCuentaPredial(null);
+            //con.setCuentaPredial(null);
             con.setDescripcion(c.get(DESCRIPCION).trim());
             con.setClaveProdServ(c.get(CLAVEPRODSERV).trim());
             con.setClaveUnidad(CClaveUnidad.fromValue(c.get(CLAVEUNIDAD).trim()));
@@ -1837,7 +1795,7 @@ public class ConstruirXML {
                             traslados.getTraslado().add(tras);
                         }
                     }
-                    if (traslados.getTraslado().size() > 0) {
+                    if (!traslados.getTraslado().isEmpty()) {
                         imp.setTraslados(traslados);
                     }
                 }
@@ -1862,7 +1820,7 @@ public class ConstruirXML {
                             retenciones.getRetencion().add(rete);
                         }
                     }
-                    if (retenciones.getRetencion().size() > 0) {
+                    if (!retenciones.getRetencion().isEmpty()) {
                         imp.setRetenciones(retenciones);
                     }
                 }
@@ -1896,7 +1854,7 @@ public class ConstruirXML {
         return cons;
     }
     
-    private Comprobante.Impuestos getImpuestos(mx.grupocorasa.sat.cfd._33.ObjectFactory of) {
+    private Comprobante.Impuestos getImpuestos(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Impuestos impuestos = of.createComprobanteImpuestos();
         Comprobante.Impuestos.Retenciones rets = of.createComprobanteImpuestosRetenciones();
         Comprobante.Impuestos.Traslados tras = of.createComprobanteImpuestosTraslados();
@@ -1929,11 +1887,11 @@ public class ConstruirXML {
             }
 
             //Seteamos Impuestos
-            if (tras.getTraslado().size() > 0) {
+            if (!tras.getTraslado().isEmpty()) {
                 impuestos.setTotalImpuestosTrasladados(new BigDecimal(get("TOTALTRASLADOS:")));
                 impuestos.setTraslados(tras);
             }
-            if (rets.getRetencion().size() > 0) {
+            if (!rets.getRetencion().isEmpty()) {
                 impuestos.setTotalImpuestosRetenidos(new BigDecimal(get("TOTALRETENIDOS:")));
                 impuestos.setRetenciones(rets);
             }
