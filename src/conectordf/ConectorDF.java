@@ -304,7 +304,7 @@ public class ConectorDF {
                 log.info(msg);
                 break;
             case "202":
-                jsonRes = "{\"isCancelled\":false, \"isRequested\":true, \"estatus\": \"" + respuesta.getEstatusCancelacion().getValue() + "\", \"mensaje\":\"" + respuesta.getMensaje().getValue() + "\"}";
+                jsonRes = "{\"isCancelled\":false, \"isRequested\":true, \"estatus\": \"SOLICITADA\", \"mensaje\":\"" + respuesta.getMensaje().getValue() + "\"}";
                 log.info(msg);
                 break;
             default:
