@@ -1882,6 +1882,7 @@ public class ConstruirXML {
                 tra.setTasaOCuota(new BigDecimal(temp[2].trim()).setScale(6, RoundingMode.HALF_UP));
                 tra.setImporte(new BigDecimal(temp[3].trim()));
                 tra.setTipoFactor(CTipoFactor.fromValue(temp[1].trim()));
+                tra.setBase(new BigDecimal(temp[4].trim()));
                 
                 tras.getTraslado().add(tra);
             }
