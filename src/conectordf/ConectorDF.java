@@ -21,6 +21,7 @@ import org.datacontract.schemas._2004._07.timbradosoap.RespuestaAcuse;
 import org.datacontract.schemas._2004._07.timbradosoap.RespuestaCancelacionCFDI;
 import org.datacontract.schemas._2004._07.timbradosoap.RespuestaRecuperarXML;
 import org.datacontract.schemas._2004._07.timbradosoap.RespuestaTFD33;
+import org.datacontract.schemas._2004._07.timbradosoap.RespuestaTFD40;
 
 /**
  *
@@ -186,7 +187,7 @@ public class ConectorDF {
     public boolean timbrar(String path) throws Exception {
         xmlNoTimbrado = construir.getXmlNoTimbrado();
 
-        RespuestaTFD33 respuesta = timbrarCFDI(user, pass, encodeStringToBase64Binary(xmlNoTimbrado));
+        RespuestaTFD40 respuesta = timbrarCFDI(user, pass, encodeStringToBase64Binary(xmlNoTimbrado));
         if (respuesta.isValidate() && respuesta.getCodigo().getValue().equals("100")) {
             xmlTimbrado = new String(Base64.decode(respuesta.getXml().getValue()), "UTF-8");
             fechaExpedicion = construir.getFechaExp();
@@ -221,7 +222,7 @@ public class ConectorDF {
             xmlNoTimbrado = cfdi;
         }
 
-        RespuestaTFD33 respuesta = timbrarCFDI(user, pass, cfdi);
+        RespuestaTFD40 respuesta = timbrarCFDI(user, pass, cfdi);
         if (respuesta.isValidate() && respuesta.getCodigo().getValue().equals("100")) {
             xmlTimbrado = new String(Base64.decode(respuesta.getXml().getValue()), "UTF-8");
             fechaExpedicion = construir.getFechaExp();
@@ -504,7 +505,7 @@ public class ConectorDF {
     private List<RespuestaRecuperarXML> recuperaXML(String user, String password, List<String> uuid) {
         org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
         org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
-        List<RespuestaRecuperarXML> rrx = new ArrayList<RespuestaRecuperarXML>();
+        List<RespuestaRecuperarXML> rrx = new ArrayList();
         int cont = 0;
         for (String u : uuid) {
             System.out.println("Descargando UUID: " + u);
@@ -514,9 +515,9 @@ public class ConectorDF {
         return rrx;
     }
 
-    private static RespuestaTFD33 timbrarCFDI(java.lang.String user, java.lang.String password, java.lang.String xml) {
+    private static RespuestaTFD40 timbrarCFDI(java.lang.String user, java.lang.String password, java.lang.String xml) {
         org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
         org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
-        return port.timbrarCFDI33(user, password, xml);
+        return port.timbrarCFDI40(user, password, xml);
     }
 }

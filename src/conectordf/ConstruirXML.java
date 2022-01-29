@@ -57,10 +57,12 @@ import mx.grupocorasa.sat.common.NamespacePrefixMapperImpl;
 import mx.grupocorasa.sat.common.Pagos10.Pagos;
 import mx.grupocorasa.sat.common.catalogos.CClaveUnidad;
 import mx.grupocorasa.sat.common.catalogos.CEstado;
+import mx.grupocorasa.sat.common.catalogos.CExportacion;
 import mx.grupocorasa.sat.common.catalogos.CFormaPago;
 import mx.grupocorasa.sat.common.catalogos.CImpuesto;
 import mx.grupocorasa.sat.common.catalogos.CMetodoPago;
 import mx.grupocorasa.sat.common.catalogos.CMoneda;
+import mx.grupocorasa.sat.common.catalogos.CObjetoImp;
 import mx.grupocorasa.sat.common.catalogos.CPais;
 import mx.grupocorasa.sat.common.catalogos.CRegimenFiscal;
 import mx.grupocorasa.sat.common.catalogos.CTipoDeComprobante;
@@ -1596,6 +1598,8 @@ public class ConstruirXML {
         comp.setNoCertificado(noCertificado);
         comp.setSello("");
         comp.setCertificado("");
+        comp.setExportacion(CExportacion.VALUE_1);
+        
         leyenda = get("LEYENDA:");
 //        String cta = get("NUMCTAPAGO");
 //
@@ -1824,6 +1828,12 @@ public class ConstruirXML {
                         imp.setRetenciones(retenciones);
                     }
                 }
+            }
+            
+            if((imp.getTraslados() != null && !imp.getTraslados().getTraslado().isEmpty()) || (imp.getRetenciones() != null && !imp.getRetenciones().getRetencion().isEmpty())){
+                con.setObjetoImp(CObjetoImp.VALUE_2);
+            }else{
+                con.setObjetoImp(CObjetoImp.VALUE_1);
             }
             
             if (!tipoComprobanteLayout.equalsIgnoreCase("N") && !tipoComprobanteLayout.equalsIgnoreCase("P")) {
