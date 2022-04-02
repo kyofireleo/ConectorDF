@@ -7,6 +7,7 @@
       <local-wsdl-file>timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl</local-wsdl-file>
       <package-name>org.tempuri</package-name>
       <catalog-file>catalog.xml</catalog-file>
+      <use-dispatch>true</use-dispatch>
       <wsimport-options>
         <wsimport-option>
           <wsimport-option-name>extension</wsimport-option-name>
@@ -26,7 +27,7 @@
         </wsimport-option>
         <wsimport-option>
           <wsimport-option-name>xnocompile</wsimport-option-name>
-          <wsimport-option-value>false</wsimport-option-value>
+          <wsimport-option-value>true</wsimport-option-value>
         </wsimport-option>
         <wsimport-option>
           <wsimport-option-name>xendorsed</wsimport-option-name>

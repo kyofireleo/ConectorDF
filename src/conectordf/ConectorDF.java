@@ -130,15 +130,13 @@ public class ConectorDF {
         }
     }
 
-    public ConectorDF(boolean produccion, String user, String pass, String pathLayout, Logger logg, String unidad, boolean isNombreLayout, String estructuraNombre) throws Exception {
+    public ConectorDF(boolean produccion, String user, String pass, List<String> layout, Logger logg, String unidad, boolean isNombreLayout, String estructuraNombre) throws Exception {
         log = logg;
         ConectorDF.unidad = unidad;
         util = new utils.Utils(log);
-        if (isNombreLayout) {
-            construir = new ConstruirXML(estructuraNombre, util.leerTxt(pathLayout), new File(pathLayout));
-        } else {
-            construir = new ConstruirXML(estructuraNombre, util.leerTxt(pathLayout));
-        }
+
+        construir = new ConstruirXML(estructuraNombre, layout);
+        
         this.user = user;
         this.pass = pass;
         this.produccion = produccion;
