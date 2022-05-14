@@ -28,6 +28,7 @@ import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,9 @@ import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -1346,6 +1350,10 @@ public class ConstruirXML {
             }
             
             switch (tipoComprobante) {
+                case "D":
+                    context = "mx.grupocorasa.sat.common.donat.v11";
+                    xslt = ConectorDF.unidad + folder + "donat11.xslt";
+                    break;
                 case "N":
                     context = "mx.grupocorasa.sat.common.nomina12";
                     xslt = ConectorDF.unidad + folder + "nomina12.xslt";

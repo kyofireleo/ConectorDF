@@ -131,15 +131,13 @@ public class ConectorDF {
         }
     }
 
-    public ConectorDF(boolean produccion, String user, String pass, String pathLayout, Logger logg, String unidad, boolean isNombreLayout, String estructuraNombre) throws Exception {
+    public ConectorDF(boolean produccion, String user, String pass, List<String> layout, Logger logg, String unidad, boolean isNombreLayout, String estructuraNombre) throws Exception {
         log = logg;
         ConectorDF.unidad = unidad;
         util = new utils.Utils(log);
-        if (isNombreLayout) {
-            construir = new ConstruirXML(estructuraNombre, util.leerTxt(pathLayout), new File(pathLayout));
-        } else {
-            construir = new ConstruirXML(estructuraNombre, util.leerTxt(pathLayout));
-        }
+
+        construir = new ConstruirXML(estructuraNombre, layout);
+        
         this.user = user;
         this.pass = pass;
         this.produccion = produccion;
@@ -305,7 +303,7 @@ public class ConectorDF {
                 log.info(msg);
                 break;
             case "202":
-                jsonRes = "{\"isCancelled\":false, \"isRequested\":true, \"estatus\": \"" + respuesta.getEstatusCancelacion().getValue() + "\", \"mensaje\":\"" + respuesta.getMensaje().getValue() + "\"}";
+                jsonRes = "{\"isCancelled\":false, \"isRequested\":true, \"estatus\": \"SOLICITADA\", \"mensaje\":\"" + respuesta.getMensaje().getValue() + "\"}";
                 log.info(msg);
                 break;
             default:
@@ -505,7 +503,7 @@ public class ConectorDF {
     private List<RespuestaRecuperarXML> recuperaXML(String user, String password, List<String> uuid) {
         org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
         org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
-        List<RespuestaRecuperarXML> rrx = new ArrayList();
+        List<RespuestaRecuperarXML> rrx = new ArrayList<RespuestaRecuperarXML>();
         int cont = 0;
         for (String u : uuid) {
             System.out.println("Descargando UUID: " + u);
