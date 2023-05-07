@@ -4,6 +4,7 @@
  */
 package complementos.nominas;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -11,22 +12,22 @@ import java.util.List;
  * @author Abe
  */
 public class Deducciones{
-    private Double totalOtras, totalRetenido;
+    private BigDecimal totalOtras, totalRetenido;
     private List<Deduccion> deducciones;
 
-    public Double getTotalOtras() {
+    public BigDecimal getTotalOtras() {
         return totalOtras;
     }
 
-    public void setTotalOtras(Double totalOtras) {
+    public void setTotalOtras(BigDecimal totalOtras) {
         this.totalOtras = totalOtras;
     }
 
-    public Double getTotalRetenido() {
+    public BigDecimal getTotalRetenido() {
         return totalRetenido;
     }
 
-    public void setTotalRetenido(Double totalRetenido) {
+    public void setTotalRetenido(BigDecimal totalRetenido) {
         this.totalRetenido = totalRetenido;
     }
 
@@ -44,7 +45,7 @@ public class Deducciones{
     
     public class Deduccion{
         private String tipoDeduccion, clave, concepto;
-        private Double importe;
+        private BigDecimal importe;
 
         public String getTipoDeduccion() {
             return tipoDeduccion;
@@ -70,11 +71,11 @@ public class Deducciones{
             this.concepto = concepto;
         }
 
-        public Double getImporte() {
+        public BigDecimal getImporte() {
             return importe;
         }
 
-        public void setImporte(Double importe) {
+        public void setImporte(BigDecimal importe) {
             this.importe = importe;
         }
     }

@@ -4,33 +4,28 @@
  */
 package conectordf;
 
+import addendas.BioPappel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import static conectordf.ConectorDF.log;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,11 +33,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -57,8 +48,7 @@ import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.FiguraTransporte;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.Mercancias;
 import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.Ubicaciones;
-import mx.grupocorasa.sat.common.NamespacePrefixMapperImpl;
-import mx.grupocorasa.sat.common.Pagos10.Pagos;
+import mx.grupocorasa.sat.common.Pagos20.Pagos;
 import mx.grupocorasa.sat.common.catalogos.CClaveUnidad;
 import mx.grupocorasa.sat.common.catalogos.CEstado;
 import mx.grupocorasa.sat.common.catalogos.CExportacion;
@@ -104,6 +94,7 @@ import mx.grupocorasa.sat.common.catalogos.Nomina.CTipoNomina;
 import mx.grupocorasa.sat.common.catalogos.Nomina.CTipoOtroPago;
 import mx.grupocorasa.sat.common.catalogos.Nomina.CTipoPercepcion;
 import mx.grupocorasa.sat.common.catalogos.Nomina.CTipoRegimen;
+import mx.grupocorasa.sat.common.catalogos.Pagos.CTipoCadenaPago;
 import mx.grupocorasa.sat.common.donat11.Donatarias;
 import mx.grupocorasa.sat.common.implocal10.ImpuestosLocales;
 import mx.grupocorasa.sat.common.nomina12.Nomina;
@@ -133,6 +124,10 @@ public class ConstruirXML {
     private int posiConRetenciones, posfConRetenciones, posiLocalTraslados, posfLocalTraslados;
     private int posiLocalRetenciones, posfLocalRetenciones;
     private int posiPagos, posfPagos, posiDocPagos, posfDocPagos;
+    private int posiPagosImpuestosRet, posfPagosImpuestosRet;
+    private int posiPagosImpuestosTra, posfPagosImpuestosTra;
+    private int posiDocPagosRet, posfDocPagosRet;
+    private int posiDocPagosTra, posfDocPagosTra;
     /*Carta Porte [B]*/
     private int posiCartaPorte, posfCartaPorte;
     /*Carta Porte [E]*/
@@ -1210,12 +1205,58 @@ public class ConstruirXML {
         }
     }
     
-    private Pagos getPagos() {
+    private mx.grupocorasa.sat.common.Pagos20.Pagos getPagos() {
         if (posiPagos > 0) {
-            mx.grupocorasa.sat.common.Pagos10.ObjectFactory obj = new mx.grupocorasa.sat.common.Pagos10.ObjectFactory();
-            Pagos pagos = obj.createPagos();
-            pagos.setVersion("1.0");
+            mx.grupocorasa.sat.common.Pagos20.ObjectFactory obj = new mx.grupocorasa.sat.common.Pagos20.ObjectFactory();
+            mx.grupocorasa.sat.common.Pagos20.Pagos pagos = obj.createPagos();
+            pagos.setVersion("2.0");
+            
+            //Totales
+            mx.grupocorasa.sat.common.Pagos20.Pagos.Totales totales = obj.createPagosTotales();
+            BigDecimal montoTotalPagos = redondear(new BigDecimal(get("MontoTotalPagos")));
+            BigDecimal totalRetencionesIVA = redondear(new BigDecimal(get("TotalRetencionesIVA")));
+            BigDecimal totalRetensionesISR = redondear(new BigDecimal(get("TotalRetensionesISR")));
+            BigDecimal totalRetensionesIEPS = redondear(new BigDecimal(get("TotalRetensionesIEPS")));
+            BigDecimal totalTrasladosBaseIVA16 = redondear(new BigDecimal(get("TotalTrasladosBaseIVA16")));
+            BigDecimal totalTrasladosImpuestoIVA16 = redondear(new BigDecimal(get("TotalTrasladosImpuestoIVA16")));
+            BigDecimal totalTrasladosBaseIVA8 = redondear(new BigDecimal(get("TotalTrasladosBaseIVA8")));
+            BigDecimal totalTrasladosImpuestoIVA8 = redondear(new BigDecimal(get("TotalTrasladosImpuestoIVA8")));
+            BigDecimal totalTrasladosBaseIVA0 = redondear(new BigDecimal(get("TotalTrasladosBaseIVA0")));
+            BigDecimal totalTrasladosImpuestoIVA0 = redondear(new BigDecimal(get("TotalTrasladosImpuestoIVA0")));
+            BigDecimal totalTrasladosBaseIVAExento = redondear(new BigDecimal(get("TotalTrasladosBaseIVAExento")));
+            
+            totales.setMontoTotalPagos(montoTotalPagos);
+            
+            if(totalRetensionesIEPS.compareTo(BigDecimal.ZERO) == 1)
+                totales.setTotalRetencionesIEPS(totalRetensionesIEPS);
+            if(totalRetencionesIVA.compareTo(BigDecimal.ZERO) == 1)
+                totales.setTotalRetencionesIVA(totalRetencionesIVA);
+            if(totalRetensionesISR.compareTo(BigDecimal.ZERO) == 1)
+                totales.setTotalRetencionesISR(totalRetensionesISR);
+            
+            if(totalTrasladosBaseIVA0.compareTo(BigDecimal.ZERO) == 1){
+                totales.setTotalTrasladosBaseIVA0(totalTrasladosBaseIVA0);
+                totales.setTotalTrasladosImpuestoIVA0(totalTrasladosImpuestoIVA0);
+            }
+            if(totalTrasladosBaseIVA8.compareTo(BigDecimal.ZERO) == 1){
+                totales.setTotalTrasladosBaseIVA8(totalTrasladosBaseIVA8);
+                totales.setTotalTrasladosImpuestoIVA8(totalTrasladosImpuestoIVA8);
+            }
+            if(totalTrasladosBaseIVA16.compareTo(BigDecimal.ZERO) == 1){
+                totales.setTotalTrasladosBaseIVA16(totalTrasladosBaseIVA16);
+                totales.setTotalTrasladosImpuestoIVA16(totalTrasladosImpuestoIVA16);
+            }
+            if(totalTrasladosBaseIVAExento.compareTo(BigDecimal.ZERO) == 1)
+                totales.setTotalTrasladosBaseIVAExento(totalTrasladosBaseIVAExento);
+
+            pagos.setTotales(totales);
+            
             int cont = 0;
+            int contDoc = 0;
+            boolean isExento = false;
+            boolean isTasa0 = false;
+            boolean isTasa8 = false;
+            
             for (int i = posiPagos; i < posfPagos; i++) {
                 cont++;
                 try {
@@ -1227,48 +1268,217 @@ public class ConstruirXML {
                     c.setTime(fechaAuto);
                     java.time.LocalDateTime xc = java.time.LocalDateTime.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
                     
-                    Pagos.Pago p = obj.createPagosPago();
-                    //p.setCadPago(folio);
-                    //p.setCertPago(null);
+                    //Pagos
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago p = obj.createPagosPago();
+                    
                     p.setCtaBeneficiario(rowPay[0].equals(".") ? null : rowPay[0]);
                     p.setCtaOrdenante(rowPay[2].equals(".") ? null : rowPay[2]);
                     p.setFechaPago(xc);
                     p.setFormaDePagoP(CFormaPago.fromValue(rowPay[7]));
                     p.setMonedaP(CMoneda.fromValue(rowPay[5]));
                     p.setMonto(redondear(new BigDecimal(rowPay[4])));
-                    //p.setNomBancoOrdExt(folio);
-                    //p.setNumOperacion(folio);
                     p.setRfcEmisorCtaBen(rowPay[0].equals(".") ? null : rowPay[1]);
                     p.setRfcEmisorCtaOrd(rowPay[2].equals(".") ? null : rowPay[3]);
-                    //p.setSelloPago(null);
-                    //p.setTipoCadPago(folio);
-                    p.setTipoCambioP(rowPay[6].equals(".") ? null : redondear(new BigDecimal(rowPay[6])));
+                    p.setTipoCambioP(rowPay[6].equals(".") ? null : new BigDecimal(rowPay[6]));
                     
+                    //Pagos 2.0
+                    if(!rowPay[9].trim().isEmpty()){
+                        p.setTipoCadPago(CTipoCadenaPago.fromValue(rowPay[9]));
+                        p.setCertPago(rowPay[10].getBytes());
+                        p.setCadPago(rowPay[11]);
+                        p.setSelloPago(rowPay[12].getBytes());
+                    }
+                    
+                    p.setNumOperacion(rowPay[13]);
+                    
+                    if(p.getRfcEmisorCtaOrd() != null && p.getRfcEmisorCtaOrd().equals("XEXX010101000"))
+                        p.setNomBancoOrdExt(rowPay[14]);
+                    
+                    //ImpuestosPago
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP impuestosPago;
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.RetencionesP retencionesPago;
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.RetencionesP.RetencionP retPago;
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.TrasladosP trasladosPago;
+                    mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP traPago;
+                    
+                    if(posiPagosImpuestosRet < posfPagosImpuestosRet || posiPagosImpuestosTra < posfPagosImpuestosTra){
+                        impuestosPago = obj.createPagosPagoImpuestosP();
+                        /*
+                        if(posiPagosImpuestosRet < posfPagosImpuestosRet){
+                            retencionesPago = obj.createPagosPagoImpuestosPRetencionesP();
+                            for (int j = posiPagosImpuestosRet; j < posfPagosImpuestosRet; j++) {
+                                String[] rowRet = layout.get(j).split(":")[1].trim().split("@");
+                                
+                                if(rowRet[0].equalsIgnoreCase("P"+cont)){
+                                    retPago = obj.createPagosPagoImpuestosPRetencionesPRetencionP();
+                                    retPago.setImpuestoP(CImpuesto.fromValue(rowRet[1]));
+                                    retPago.setImporteP(new BigDecimal(rowRet[2]));
+                                    
+                                    retencionesPago.getRetencionP().add(retPago);
+                                }
+                            }
+                            
+                            if(!retencionesPago.getRetencionP().isEmpty())
+                                impuestosPago.setRetencionesP(retencionesPago);
+                        }
+                        */
+                        
+                        if(posiPagosImpuestosTra < posfPagosImpuestosTra){
+                            trasladosPago = obj.createPagosPagoImpuestosPTrasladosP();
+                            for (int j = posiPagosImpuestosTra; j < posfPagosImpuestosTra; j++) {
+                                String[] rowTra = layout.get(j).split(":")[1].trim().split("@");
+                                
+                                if(rowTra[0].equalsIgnoreCase("P"+cont)){
+                                    traPago = obj.createPagosPagoImpuestosPTrasladosPTrasladoP();
+                                    traPago.setImpuestoP(CImpuesto.fromValue(rowTra[1]));
+                                    traPago.setBaseP(new BigDecimal(rowTra[2]));
+                                    traPago.setTipoFactorP(CTipoFactor.fromValue(rowTra[4]));
+                                    
+                                    if(traPago.getTipoFactorP() != CTipoFactor.EXENTO){
+                                        traPago.setImporteP(new BigDecimal(rowTra[3]));
+                                        traPago.setTasaOCuotaP(new BigDecimal(rowTra[5]));
+                                    }
+                                    
+                                    trasladosPago.getTrasladoP().add(traPago);
+                                }
+                                
+                            }
+                            
+                            if(!trasladosPago.getTrasladoP().isEmpty())
+                                impuestosPago.setTrasladosP(trasladosPago);
+                        }
+                        
+                        p.setImpuestosP(impuestosPago);
+                    }
+                    
+                    //DocumentosPago
                     for (int h = posiDocPagos; h < posfDocPagos; h++) {
-                        Pagos.Pago.DoctoRelacionado dr = obj.createPagosPagoDoctoRelacionado();
+                        contDoc++;
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado dr = obj.createPagosPagoDoctoRelacionado();
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR impDr;
+                        
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.RetencionesDR retDr;
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.RetencionesDR.RetencionDR rDr;
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.TrasladosDR traDr;
+                        mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.TrasladosDR.TrasladoDR tDr;
+                        
+                        
                         String[] rowDoc = layout.get(h).split(":")[1].trim().split("@");
                         if (rowDoc[0].equalsIgnoreCase("P" + cont)) {
-                            dr.setIdDocumento(rowDoc[10]);
                             dr.setFolio(rowDoc[1]);
                             dr.setSerie(rowDoc[2]);
+                            dr.setImpSaldoInsoluto(redondear(new BigDecimal(rowDoc[3])));
                             dr.setImpPagado(redondear(new BigDecimal(rowDoc[4])));
                             dr.setImpSaldoAnt(redondear(new BigDecimal(rowDoc[5])));
-                            dr.setImpSaldoInsoluto(redondear(new BigDecimal(rowDoc[3])));
-                            dr.setMetodoDePagoDR(CMetodoPago.fromValue(rowDoc[7]));
-                            dr.setMonedaDR(CMoneda.fromValue(rowDoc[8]));
                             dr.setNumParcialidad(new BigInteger(rowDoc[6]));
-                            dr.setTipoCambioDR(rowDoc[9].equals(".") ? null : redondear(new BigDecimal(rowDoc[9])));
+                            dr.setMonedaDR(CMoneda.fromValue(rowDoc[7]));
+                            dr.setEquivalenciaDR(new BigDecimal(rowDoc[8]));
+                            dr.setIdDocumento(rowDoc[9]);
+                            dr.setObjetoImpDR(CObjetoImp.fromValue(rowDoc[10]));
+                            
+                            if(dr.getObjetoImpDR().equals(CObjetoImp.VALUE_2)){
+                                impDr = obj.createPagosPagoDoctoRelacionadoImpuestosDR();
+                                
+                                if(posiDocPagosRet < posfDocPagosRet){
+                                    retDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRRetencionesDR();
+
+                                    for(int j = posiDocPagosRet; j < posfDocPagosRet; j++){
+                                        String[] rowRet = layout.get(j).split(":")[1].trim().split("@");
+                                        if(rowRet[0].equalsIgnoreCase("DP"+contDoc)){
+                                            rDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRRetencionesDRRetencionDR();
+
+                                            rDr.setImpuestoDR(CImpuesto.fromValue(rowRet[1]));
+                                            rDr.setBaseDR(new BigDecimal(rowRet[2]));
+                                            rDr.setTipoFactorDR(CTipoFactor.fromValue(rowRet[4]));
+                                            rDr.setImporteDR(new BigDecimal(rowRet[3]));
+                                            rDr.setTasaOCuotaDR(new BigDecimal(rowRet[5]));
+
+                                            retDr.getRetencionDR().add(rDr);
+                                        }
+                                    }
+                                    
+                                    if(!retDr.getRetencionDR().isEmpty())
+                                        impDr.setRetencionesDR(retDr);
+                                }
+
+                                if(posiDocPagosTra < posfDocPagosTra){
+                                    traDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRTrasladosDR();
+
+                                    for(int j = posiDocPagosTra; j < posfDocPagosTra; j++){
+                                        String[] rowTra = layout.get(j).split(":")[1].trim().split("@");
+                                        if(rowTra[0].trim().equalsIgnoreCase("DP"+contDoc)){
+                                            tDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRTrasladosDRTrasladoDR();
+
+                                            tDr.setImpuestoDR(CImpuesto.fromValue(rowTra[1]));
+                                            tDr.setBaseDR(new BigDecimal(rowTra[2]));
+                                            tDr.setTipoFactorDR(CTipoFactor.fromValue(rowTra[4]));
+                                            
+                                            if(tDr.getTipoFactorDR() != CTipoFactor.EXENTO){
+                                                tDr.setImporteDR(new BigDecimal(rowTra[3]));
+                                                tDr.setTasaOCuotaDR(new BigDecimal(rowTra[5]));
+                                            }else{
+                                                isExento = true;
+                                            }
+                                            
+                                            
+                                            
+                                            if(tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(BigDecimal.ZERO) == 0 && !isExento){
+                                                isTasa0 = true;
+                                            }
+                                            
+                                            if(tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(new BigDecimal("0.080000")) == 0){
+                                                isTasa8 = true;
+                                            }
+
+                                            traDr.getTrasladoDR().add(tDr);
+                                        }
+                                    }
+                                    
+                                    if(!isExento || !isTasa0 || !isTasa8){
+                                        Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tExento = null;
+                                        Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tCero = null;
+                                        Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tOcho = null;
+                                        for(Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP t : p.getImpuestosP().getTrasladosP().getTrasladoP()){
+                                            if(!isExento && t.getTipoFactorP() == CTipoFactor.EXENTO){
+                                                tExento = t;
+                                            }
+                                            
+                                            if(!isTasa0 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(BigDecimal.ZERO) == 0 && t.getTipoFactorP() == CTipoFactor.TASA){
+                                                tCero = t;
+                                            }
+                                            
+                                            if(!isTasa8 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(new BigDecimal("0.080000")) == 0){
+                                                tOcho = t;
+                                            }
+                                        }
+                                        
+                                        if(tExento != null)
+                                            p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tExento);
+                                        if(tCero != null)
+                                            p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tCero);
+                                        if(tOcho != null)
+                                            p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tOcho);
+                                        
+                                    }
+                                    
+                                    if(!traDr.getTrasladoDR().isEmpty())
+                                        impDr.setTrasladosDR(traDr);
+                                }
+                                
+                                dr.setImpuestosDR(impDr);
+                            }
                             
                             p.getDoctoRelacionado().add(dr);
                         }
                     }
-                    
+                            
                     pagos.getPago().add(p);
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                     log.error("Error al obtener los pagos: ", ex);
                 }
             }
+            
             return pagos;
         } else {
             return null;
@@ -1318,6 +1528,18 @@ public class ConstruirXML {
         
         posiDocPagos = layout.indexOf("[DOCTOS_PAGOS]") + 1;
         posfDocPagos = layout.indexOf("[/DOCTOS_PAGOS]");
+        
+        posiPagosImpuestosRet = layout.indexOf("[PAGOS_IMPUESTOS_RETENIDOS]") + 1;
+        posfPagosImpuestosRet = layout.indexOf("[/PAGOS_IMPUESTOS_RETENIDOS]");
+        
+        posiPagosImpuestosTra = layout.indexOf("[PAGOS_IMPUESTOS_TRASLADOS]") + 1;
+        posfPagosImpuestosTra = layout.indexOf("[/PAGOS_IMPUESTOS_TRASLADOS]");
+        
+        posiDocPagosRet = layout.indexOf("[DOCTOS_PAGOS_RETENCIONES]") + 1;
+        posfDocPagosRet = layout.indexOf("[/DOCTOS_PAGOS_RETENCIONES]");
+        
+        posiDocPagosTra = layout.indexOf("[DOCTOS_PAGOS_TRASLADOS]") + 1;
+        posfDocPagosTra = layout.indexOf("[/DOCTOS_PAGOS_TRASLADOS]");
 
         /**
          * ********CARTA PORTE [B]************
@@ -1351,7 +1573,7 @@ public class ConstruirXML {
             
             switch (tipoComprobante) {
                 case "D":
-                    context = "mx.grupocorasa.sat.common.donat.v11";
+                    context = "mx.grupocorasa.sat.common.donat11";
                     xslt = ConectorDF.unidad + folder + "donat11.xslt";
                     break;
                 case "N":
@@ -1582,7 +1804,7 @@ public class ConstruirXML {
         
         comp.setLugarExpedicion(get("LUGAREXPEDICION:"));
         comp.setMetodoPago(get("TIPO_COMPROBANTE:").equals("T") || get("TIPO_COMPROBANTE:").equals("P") ? null : CMetodoPago.fromValue(metodoPago));
-        comp.setFormaPago(get("TIPO_COMPROBANTE:").equals("T") || get("TIPO_COMPROBANTE:").equals("P") ? null : CFormaPago.fromValue(get("FORMAPAGO:")));
+        comp.setFormaPago(get("TIPO_COMPROBANTE:").equals("T") || get("TIPO_COMPROBANTE:").equals("P") || get("TIPO_COMPROBANTE:").equals("N") ? null : CFormaPago.fromValue(get("FORMAPAGO:")));
         String moneda = get("MONEDA:");
         String tipoCambio = get("TIPOCAMBIO:");
         
@@ -1774,7 +1996,8 @@ public class ConstruirXML {
                 con.setCantidad(cant.setScale(0, RoundingMode.HALF_UP));
             } else {
                 //con.setCantidad(cant.setScale(3, RoundingMode.HALF_UP));
-                con.setCantidad(cant.setScale(2, RoundingMode.HALF_UP));
+                //con.setCantidad(cant.setScale(2, RoundingMode.HALF_UP));
+                con.setCantidad(cant);
             }
             con.setComplementoConcepto(null);
             //con.setCuentaPredial(null);
@@ -1798,11 +2021,13 @@ public class ConstruirXML {
                         List<String> t = Arrays.asList(tra.substring(postr + 1).trim().split("@"));
                         if (t.get(0).trim().equalsIgnoreCase("C" + cont)) {
                             Comprobante.Conceptos.Concepto.Impuestos.Traslados.Traslado tras = of.createComprobanteConceptosConceptoImpuestosTrasladosTraslado();
-                            tras.setBase(util.redondear(new BigDecimal(t.get(1).trim())));
+                            //tras.setBase(util.redondear(new BigDecimal(t.get(1).trim())));
+                            tras.setBase(new BigDecimal(t.get(1).trim()));
                             tras.setImpuesto(CImpuesto.fromValue(t.get(2).trim()));
                             tras.setTipoFactor(CTipoFactor.fromValue(t.get(3).trim()));
                             tras.setTasaOCuota(new BigDecimal(t.get(4).trim()).setScale(6, RoundingMode.HALF_UP));
-                            tras.setImporte(util.redondear(new BigDecimal(t.get(5).trim())));
+                            //tras.setImporte(util.redondear(new BigDecimal(t.get(5).trim())));
+                            tras.setImporte(new BigDecimal(t.get(5).trim()));
                             
                             traslados.getTraslado().add(tras);
                         }
@@ -1823,11 +2048,13 @@ public class ConstruirXML {
                         List<String> r = Arrays.asList(ret.substring(postr + 1).trim().split("@"));
                         if (r.get(0).trim().equalsIgnoreCase("C" + cont)) {
                             Comprobante.Conceptos.Concepto.Impuestos.Retenciones.Retencion rete = of.createComprobanteConceptosConceptoImpuestosRetencionesRetencion();
-                            rete.setBase(util.redondear(new BigDecimal(r.get(1))));
+                            //rete.setBase(util.redondear(new BigDecimal(r.get(1))));
+                            rete.setBase(new BigDecimal(r.get(1)));
                             rete.setImpuesto(CImpuesto.fromValue(r.get(2)));
                             rete.setTipoFactor(CTipoFactor.fromValue(r.get(3)));
                             rete.setTasaOCuota(new BigDecimal(r.get(4)).setScale(6, RoundingMode.HALF_UP));
-                            rete.setImporte(util.redondear(new BigDecimal(r.get(5))));
+                            //rete.setImporte(util.redondear(new BigDecimal(r.get(5))));
+                            rete.setImporte(new BigDecimal(r.get(5)));
                             
                             retenciones.getRetencion().add(rete);
                         }
@@ -1969,6 +2196,38 @@ public class ConstruirXML {
         sb.append("<cfdi:Pedido folio=\"").append(get("KLYNS_FOLIO:")).append("\"></cfdi:Pedido>");
         sb.append("</cfdi:Klyns>");
         sb.append("</cfdi:Addenda>");
+        return sb.toString();
+    }
+    
+    private String getAddendaBioPappel(BioPappel add){
+        StringBuilder sb = new StringBuilder();
+        String salto = "\r\n";
+        sb.append("<cfdi:Addenda>").append(salto);
+        sb.append("\t<BioPappel Version=\"").append(add.getVersion()).append("\" IdProveedor=\"").append(add.getIdProveedor()).append("\">").append(salto);
+        sb.append("\t\t<OrdenCompra NumeroOC=\"").append(add.getOrdenCompra().getNumeroOC()).append("\">").append(salto);
+        sb.append("\t\t\t<Recepciones>").append(salto);
+        BioPappel.OrdenCompra.Recepciones recepciones = add.getOrdenCompra().getRecepciones();
+        for (int i = 0; i < recepciones.getRecepcionList().size(); i++) {
+            BioPappel.OrdenCompra.Recepciones.Recepcion rec = recepciones.getRecepcionList().get(i);
+            sb.append("\t\t\t\t<Recepcion NoRemision=\"").append(rec.getNoRemision()).append("\" IdRecepcion=\"").append(rec.getIdRecepcion()).append("\">").append(salto);
+            for (int j = 0; j < rec.getConceptoList().size(); j++) {
+                BioPappel.OrdenCompra.Recepciones.Recepcion.Concepto con = rec.getConceptoList().get(j);
+                sb.append("\t\t\t\t\t<Concepto ValorUnitario=\"").append(con.getValorUnitario().toString())
+                        .append("\" Unidad=\"").append(con.getUnidad())
+                        .append("\" NoIdentificacion=\"").append(con.getNoIdentificacion())
+                        .append("\" Importe=\"").append(con.getImporte().toString())
+                        .append("\" Descripcion=\"").append(con.getDescripcion())
+                        .append("\" Cantidad=\"").append(con.getCantidad().toString())
+                        .append("\" PosOC=\"").append(con.getPosOC())
+                        .append("\" />").append(salto);
+            }
+            sb.append("\t\t\t\t</Recepcion>").append(salto);
+        }
+        sb.append("\t\t\t </Recepciones>").append(salto);
+        sb.append("\t\t</OrdenCompra>").append(salto);
+        sb.append("\t</BioPappel>").append(salto);
+        sb.append("</cfdi:Addenda>").append(salto);
+        
         return sb.toString();
     }
     

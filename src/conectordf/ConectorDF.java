@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import log.Log;
 import org.apache.log4j.Logger;
-import org.datacontract.schemas._2004._07.timbradosoap.RespuestaAcuse;
-import org.datacontract.schemas._2004._07.timbradosoap.RespuestaCancelacionCFDI;
-import org.datacontract.schemas._2004._07.timbradosoap.RespuestaRecuperarXML;
-import org.datacontract.schemas._2004._07.timbradosoap.RespuestaTFD33;
-import org.datacontract.schemas._2004._07.timbradosoap.RespuestaTFD40;
+import dfacture.RespuestaAcuse;
+import dfacture.RespuestaCancelacionCFDI;
+import dfacture.RespuestaRecuperarXML;
+import dfacture.RespuestaTFD33;
+import dfacture.RespuestaTFD40;
 
 /**
  *
@@ -436,8 +436,8 @@ public class ConectorDF {
     private List<RespuestaTFD33> timbrarCFDI(String user, String password, List<String> xml, Boolean onlyTFD) throws UnsupportedEncodingException {
         List<RespuestaTFD33> respuestas = new ArrayList<RespuestaTFD33>();
         RespuestaTFD33 r;
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         for (String x : xml) {
             if (x.contains("ns3:Nomina")) {
                 x = x.replaceAll("ns3:", "nomina12:");
@@ -457,15 +457,15 @@ public class ConectorDF {
     }
 
     private static RespuestaCancelacionCFDI cancelarCFDI(java.lang.String user, java.lang.String password, java.lang.String rfcEmisor, java.lang.String rfcReceptor, java.lang.String uuid, java.lang.String total, java.lang.String certificado, java.lang.String llave, java.lang.String passwordLlave, String motivo, String uuidRelacionado) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
 
         return port.cancelarCFDI(user, password, rfcEmisor, rfcReceptor, uuid, total, certificado, llave, passwordLlave, motivo, uuidRelacionado);
     }
 
     private List<RespuestaCancelacionCFDI> cancelarCFDI(String user, String password, String rfcEmisor, List<String> rfcReceptor, List<String> uuid, List<String> total, String certificado, String llave, String passwordLlave) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         List<RespuestaCancelacionCFDI> respuesta = new ArrayList<RespuestaCancelacionCFDI>();
         for (int i = 0; i < uuid.size(); i++) {
             String u = uuid.get(i);
@@ -489,20 +489,20 @@ public class ConectorDF {
     }
 
     private RespuestaAcuse acuseCancelacion(String user, String password, String uuid) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         return port.acuseCancelacion(user, password, uuid);
     }
 
     private RespuestaRecuperarXML recuperaXML(String user, String password, String uuid) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         return port.recuperarXML(user, password, uuid);
     }
 
     private List<RespuestaRecuperarXML> recuperaXML(String user, String password, List<String> uuid) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         List<RespuestaRecuperarXML> rrx = new ArrayList<RespuestaRecuperarXML>();
         int cont = 0;
         for (String u : uuid) {
@@ -514,8 +514,9 @@ public class ConectorDF {
     }
 
     private static RespuestaTFD40 timbrarCFDI(java.lang.String user, java.lang.String password, java.lang.String xml) {
-        org.tempuri.WSTimbradoSOAP service = new org.tempuri.WSTimbradoSOAP(wsdl);
-        org.tempuri.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
+        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        System.out.println(wsdl);
         return port.timbrarCFDI40(user, password, xml);
     }
 }

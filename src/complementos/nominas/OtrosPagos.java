@@ -4,6 +4,7 @@
  */
 package complementos.nominas;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -11,23 +12,23 @@ import java.util.List;
  * @author Abe
  */
 public class OtrosPagos{
-    private Double totalOtrosPagos;
-    private List<OtroPago> deducciones;
+    private BigDecimal totalOtrosPagos;
+    private List<OtroPago> otrosPagos;
 
-    public Double getTotalOtrosPagos() {
+    public BigDecimal getTotalOtrosPagos() {
         return totalOtrosPagos;
     }
 
-    public void setTotalOtrosPagos(Double totalOtrosPagos) {
+    public void setTotalOtrosPagos(BigDecimal totalOtrosPagos) {
         this.totalOtrosPagos = totalOtrosPagos;
     }
 
     public List<OtroPago> getOtrosPagos() {
-        return deducciones;
+        return otrosPagos;
     }
 
-    public void setOtrosPagos(List<OtroPago> deducciones) {
-        this.deducciones = deducciones;
+    public void setOtrosPagos(List<OtroPago> otrosPagos) {
+        this.otrosPagos = otrosPagos;
     }
     
     public OtroPago getClase(){
@@ -36,7 +37,7 @@ public class OtrosPagos{
     
     public class OtroPago{
         private String tipoOtroPago, clave, concepto;
-        private Double importe;
+        private BigDecimal importe;
 
         public String getTipoOtroPago() {
             return tipoOtroPago;
@@ -62,11 +63,11 @@ public class OtrosPagos{
             this.concepto = concepto;
         }
 
-        public Double getImporte() {
+        public BigDecimal getImporte() {
             return importe;
         }
 
-        public void setImporte(Double importe) {
+        public void setImporte(BigDecimal importe) {
             this.importe = importe;
         }
     }

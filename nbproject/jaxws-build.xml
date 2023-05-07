@@ -18,8 +18,8 @@
     </target>
     <target name="wsimport-client-WSTimbradoSOAP" depends="wsimport-init">
         <mkdir dir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP"/>
-        <property name="wsdl-WSTimbradoSOAP" location="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.wsdl"/>
-        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP" destdir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP" wsdl="${wsdl-WSTimbradoSOAP}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?wsdl" xnocompile="true" xendorsed="true">
+        <property name="wsdl-WSTimbradoSOAP" location="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP" destdir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP" wsdl="${wsdl-WSTimbradoSOAP}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl" xnocompile="true" xendorsed="true" package="dfacture">
             <depends file="${wsdl-WSTimbradoSOAP}"/>
             <produces dir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP"/>
         </wsimport>
@@ -31,7 +31,7 @@
     </target>
     <target name="wsimport-client-clean-WSTimbradoSOAP" depends="-init-project">
         <delete dir="${build.generated.dir}/jax-wsCache/WSTimbradoSOAP"/>
-        <delete dir="${build.generated.sources.dir}/jax-ws/org/tempuri"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/dfacture"/>
     </target>
     <target name="wsimport-client-generate" depends="wsimport-client-WSTimbradoSOAP"/>
 </project>

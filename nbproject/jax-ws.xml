@@ -3,9 +3,9 @@
   <services/>
   <clients>
     <client name="WSTimbradoSOAP">
-      <wsdl-url>http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?wsdl</wsdl-url>
-      <local-wsdl-file>timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.wsdl</local-wsdl-file>
-      <package-name>org.tempuri</package-name>
+      <wsdl-url>https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl</wsdl-url>
+      <local-wsdl-file>timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl</local-wsdl-file>
+      <package-name forceReplace="true">dfacture</package-name>
       <catalog-file>catalog.xml</catalog-file>
       <wsimport-options>
         <wsimport-option>
@@ -22,7 +22,7 @@
         </wsimport-option>
         <wsimport-option>
           <wsimport-option-name>wsdlLocation</wsimport-option-name>
-          <wsimport-option-value>http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?wsdl</wsimport-option-value>
+          <wsimport-option-value>https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl</wsimport-option-value>
         </wsimport-option>
         <wsimport-option>
           <wsimport-option-name>xnocompile</wsimport-option-name>
@@ -31,6 +31,10 @@
         <wsimport-option>
           <wsimport-option-name>xendorsed</wsimport-option-name>
           <wsimport-option-value>true</wsimport-option-value>
+        </wsimport-option>
+        <wsimport-option>
+          <wsimport-option-name>package</wsimport-option-name>
+          <wsimport-option-value>dfacture</wsimport-option-value>
         </wsimport-option>
       </wsimport-options>
     </client>

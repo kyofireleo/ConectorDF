@@ -4,6 +4,7 @@
  */
 package complementos.nominas;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -11,30 +12,30 @@ import java.util.List;
  * @author Abe
  */
 public class Percepciones{
-    private Double totalGravado, totalExento, totalSueldos;
+    private BigDecimal totalGravado, totalExento, totalSueldos;
     private List<Percepcion> percepciones;
 
-    public Double getTotalSueldos() {
+    public BigDecimal getTotalSueldos() {
         return totalSueldos;
     }
 
-    public void setTotalSueldos(Double totalSueldos) {
+    public void setTotalSueldos(BigDecimal totalSueldos) {
         this.totalSueldos = totalSueldos;
     }
 
-    public Double getTotalGravado() {
+    public BigDecimal getTotalGravado() {
         return totalGravado;
     }
 
-    public void setTotalGravado(Double totalGravado) {
+    public void setTotalGravado(BigDecimal totalGravado) {
         this.totalGravado = totalGravado;
     }
 
-    public Double getTotalExento() {
+    public BigDecimal getTotalExento() {
         return totalExento;
     }
 
-    public void setTotalExento(Double totalExento) {
+    public void setTotalExento(BigDecimal totalExento) {
         this.totalExento = totalExento;
     }
 
@@ -52,7 +53,7 @@ public class Percepciones{
     
     public class Percepcion{
         private String tipoPercepcion, clave, concepto;
-        private Double importeGravado, importeExento;
+        private BigDecimal importeGravado, importeExento;
 
         public String getTipoPercepcion() {
             return tipoPercepcion;
@@ -78,19 +79,19 @@ public class Percepciones{
             this.concepto = concepto;
         }
 
-        public Double getImporteGravado() {
+        public BigDecimal getImporteGravado() {
             return importeGravado;
         }
 
-        public void setImporteGravado(Double importeGravado) {
+        public void setImporteGravado(BigDecimal importeGravado) {
             this.importeGravado = importeGravado;
         }
 
-        public Double getImporteExento() {
+        public BigDecimal getImporteExento() {
             return importeExento;
         }
 
-        public void setImporteExento(Double importeExento) {
+        public void setImporteExento(BigDecimal importeExento) {
             this.importeExento = importeExento;
         }
     }
