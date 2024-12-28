@@ -16,6 +16,7 @@
     <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?xsd=xsd1" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.xsd_xsd1.xsd"/>
     <system systemId="http://timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc?xsd=xsd2" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap33.testdfacture.com/WSTimbradoSOAP.svc.xsd_xsd2.xsd"/>
     <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl"/>
+    <system systemId="file:/C:/Users/esque/Dropbox/proyectos/ElementoIntegrador/WSTimbradoSOAP.wsdl" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/WSTimbradoSOAP.wsdl"/>
     <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd0" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd0.xsd"/>
     <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd1" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd1.xsd"/>
     <system systemId="https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?xsd=xsd2" uri="xml-resources/web-service-references/WSTimbradoSOAP/wsdl/timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.xsd_xsd2.xsd"/>

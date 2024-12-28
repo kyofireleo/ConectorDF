@@ -3,10 +3,11 @@
   <services/>
   <clients>
     <client name="WSTimbradoSOAP">
-      <wsdl-url>https://timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc?wsdl</wsdl-url>
-      <local-wsdl-file>timbradosoap.solucionesdfacture.com/WSTimbradoSOAP.svc.wsdl</local-wsdl-file>
-      <package-name forceReplace="true">dfacture</package-name>
+      <wsdl-url>file:/C:/Users/esque/Dropbox/proyectos/ElementoIntegrador/WSTimbradoSOAP.wsdl</wsdl-url>
+      <local-wsdl-file>WSTimbradoSOAP.wsdl</local-wsdl-file>
+      <package-name forceReplace="true">defacture</package-name>
       <catalog-file>catalog.xml</catalog-file>
+      <use-dispatch>true</use-dispatch>
       <wsimport-options>
         <wsimport-option>
           <wsimport-option-name>extension</wsimport-option-name>
@@ -34,7 +35,7 @@
         </wsimport-option>
         <wsimport-option>
           <wsimport-option-name>package</wsimport-option-name>
-          <wsimport-option-value>dfacture</wsimport-option-value>
+          <wsimport-option-value>defacture</wsimport-option-value>
         </wsimport-option>
       </wsimport-options>
     </client>

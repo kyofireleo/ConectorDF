@@ -5,7 +5,8 @@
  */
 package conectordf;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import defacture.RespuestaTFD33;
+import java.util.Base64;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import log.Log;
 import org.apache.log4j.Logger;
-import dfacture.RespuestaAcuse;
-import dfacture.RespuestaCancelacionCFDI;
-import dfacture.RespuestaRecuperarXML;
-import dfacture.RespuestaTFD33;
-import dfacture.RespuestaTFD40;
+import defacture.RespuestaAcuse;
+import defacture.RespuestaCancelacionCFDI;
+import defacture.RespuestaRecuperarXML;
+import defacture.RespuestaTFD33;
+import defacture.RespuestaTFD40;
 
 /**
  *
@@ -187,7 +188,7 @@ public class ConectorDF {
 
         RespuestaTFD40 respuesta = timbrarCFDI(user, pass, encodeStringToBase64Binary(xmlNoTimbrado));
         if (respuesta.isValidate() && respuesta.getCodigo().getValue().equals("100")) {
-            xmlTimbrado = new String(Base64.decode(respuesta.getXml().getValue()), "UTF-8");
+            xmlTimbrado = new String(Base64.getDecoder().decode(respuesta.getXml().getValue()), "UTF-8");
             fechaExpedicion = construir.getFechaExp();
             fechaTimbrado = construir.getFechaTim();
             uuid = respuesta.getUuid().getValue();
@@ -222,7 +223,7 @@ public class ConectorDF {
 
         RespuestaTFD40 respuesta = timbrarCFDI(user, pass, cfdi);
         if (respuesta.isValidate() && respuesta.getCodigo().getValue().equals("100")) {
-            xmlTimbrado = new String(Base64.decode(respuesta.getXml().getValue()), "UTF-8");
+            xmlTimbrado = new String(Base64.getDecoder().decode(respuesta.getXml().getValue()), "UTF-8");
             fechaExpedicion = construir.getFechaExp();
             fechaTimbrado = construir.getFechaTim();
             uuid = respuesta.getUuid().getValue();
@@ -256,7 +257,7 @@ public class ConectorDF {
                 uuid = respuesta.getUuid().getValue();
                 new File(path).mkdir();
                 try {
-                    xmlTimbrado = new String(Base64.decode(respuesta.getXml().getValue()), "UTF-8");
+                    xmlTimbrado = new String(Base64.getDecoder().decode(respuesta.getXml().getValue()), "UTF-8");
                     //FileManage.createFileFromString(xmlTimbrado, path, construct.getNameXml() + ".xml");
                     util.escribirArchivo(xmlTimbrado, path, construct.getNameXml() + ".xml");
                 } catch (Exception ex) {
@@ -279,18 +280,15 @@ public class ConectorDF {
         return respuestas;
     }
 
-    public String cancelarCfdi(String rfcEmisor, String rfcReceptor, String total, String uuid, String pathXml, String nameXml, String motivo, String uuidRelacionado) throws Exception {
-        if (!unidad.contains(":")) {
-            unidad += ":";
-        }
-        File fileKey = new File(unidad + "\\Facturas\\config\\" + rfcEmisor + ".key");
-        File fileCer = new File(unidad + "\\Facturas\\config\\" + rfcEmisor + ".cer");
+    public String cancelarCfdi(String rfcEmisor, String rfcReceptor, String total, String uuid, String pathXml, String nameXml, String motivo, String uuidRelacionado, String pathCert, String pathKey, String keyPass) throws Exception {
+
+        File fileKey = new File(pathKey);
+        File fileCer = new File(pathCert);
 
         String certificadoEmisor = encodeFileToBase64Binary(fileCer);
         String llaveEmisor = encodeFileToBase64Binary(fileKey);
-        String llaveEmisorPassword = FileManage.getStringFromFile(new File(unidad + "\\Facturas\\config\\" + rfcEmisor + "_pass.txt"));
 
-        RespuestaCancelacionCFDI respuesta = cancelarCFDI(user, pass, rfcEmisor, rfcReceptor, uuid, total, certificadoEmisor, llaveEmisor, llaveEmisorPassword, motivo, uuidRelacionado);
+        RespuestaCancelacionCFDI respuesta = cancelarCFDI(user, pass, rfcEmisor, rfcReceptor, uuid, total, certificadoEmisor, llaveEmisor, keyPass, motivo, uuidRelacionado);
         String codigo = respuesta.getCodigo().getValue();
         String jsonRes;
 
@@ -355,7 +353,7 @@ public class ConectorDF {
     public boolean RecuperarXML(String uuid, String path, String name) throws UnsupportedEncodingException, IOException {
         RespuestaRecuperarXML rrx = recuperaXML(user, pass, uuid);
         if (rrx.getXml().getValue() != null) {
-            String xml = new String(Base64.decode(rrx.getXml().getValue()), "UTF-8");
+            String xml = new String(Base64.getDecoder().decode(rrx.getXml().getValue()), "UTF-8");
             FileManage.createFileFromString(xml, path, name);
             return true;
         } else {
@@ -369,7 +367,7 @@ public class ConectorDF {
         for (int i = 0; i < rrx.size(); i++) {
             RespuestaRecuperarXML r = rrx.get(i);
             if (r.getXml().getValue() != null) {
-                String xml = new String(Base64.decode(r.getXml().getValue()), "UTF-8");
+                String xml = new String(Base64.getDecoder().decode(r.getXml().getValue()), "UTF-8");
                 if (!name.get(i).toLowerCase().contains(".xml")) {
                     name.set(i, name.get(i) + ".xml");
                 }
@@ -386,7 +384,7 @@ public class ConectorDF {
         for (int i = 0; i < rrx.size(); i++) {
             RespuestaRecuperarXML r = rrx.get(i);
             if (r.getXml().getValue() != null) {
-                String xml = new String(Base64.decode(r.getXml().getValue()), "UTF-8");
+                String xml = new String(Base64.getDecoder().decode(r.getXml().getValue()), "UTF-8");
                 System.out.println("Guardando XML: " + uuid.get(i) + ".xml");
                 cfdis.add(new File(path + uuid.get(i) + ".xml"));
                 FileManage.createFileFromString(xml, path, uuid.get(i) + ".xml");
@@ -397,14 +395,14 @@ public class ConectorDF {
 
     private String encodeFileToBase64Binary(File file) throws IOException {
         byte[] bytes = loadFile(file);
-        byte[] encoded = Base64.encode(bytes).getBytes("UTF8");
+        byte[] encoded = Base64.getEncoder().encode(bytes);
         String encodedString = new String(encoded, "UTF8");
         return encodedString;
     }
 
     private String encodeStringToBase64Binary(String text) throws UnsupportedEncodingException {
         byte[] bytes = text.getBytes("UTF8");
-        byte[] encoded = Base64.encode(bytes).getBytes("UTF8");
+        byte[] encoded = Base64.getEncoder().encode(bytes);
         String encodedString = new String(encoded, "UTF8");
         return encodedString;
     }
@@ -436,8 +434,8 @@ public class ConectorDF {
     private List<RespuestaTFD33> timbrarCFDI(String user, String password, List<String> xml, Boolean onlyTFD) throws UnsupportedEncodingException {
         List<RespuestaTFD33> respuestas = new ArrayList<RespuestaTFD33>();
         RespuestaTFD33 r;
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         for (String x : xml) {
             if (x.contains("ns3:Nomina")) {
                 x = x.replaceAll("ns3:", "nomina12:");
@@ -457,15 +455,15 @@ public class ConectorDF {
     }
 
     private static RespuestaCancelacionCFDI cancelarCFDI(java.lang.String user, java.lang.String password, java.lang.String rfcEmisor, java.lang.String rfcReceptor, java.lang.String uuid, java.lang.String total, java.lang.String certificado, java.lang.String llave, java.lang.String passwordLlave, String motivo, String uuidRelacionado) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
 
         return port.cancelarCFDI(user, password, rfcEmisor, rfcReceptor, uuid, total, certificado, llave, passwordLlave, motivo, uuidRelacionado);
     }
 
     private List<RespuestaCancelacionCFDI> cancelarCFDI(String user, String password, String rfcEmisor, List<String> rfcReceptor, List<String> uuid, List<String> total, String certificado, String llave, String passwordLlave) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         List<RespuestaCancelacionCFDI> respuesta = new ArrayList<RespuestaCancelacionCFDI>();
         for (int i = 0; i < uuid.size(); i++) {
             String u = uuid.get(i);
@@ -489,20 +487,20 @@ public class ConectorDF {
     }
 
     private RespuestaAcuse acuseCancelacion(String user, String password, String uuid) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         return port.acuseCancelacion(user, password, uuid);
     }
 
     private RespuestaRecuperarXML recuperaXML(String user, String password, String uuid) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         return port.recuperarXML(user, password, uuid);
     }
 
     private List<RespuestaRecuperarXML> recuperaXML(String user, String password, List<String> uuid) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         List<RespuestaRecuperarXML> rrx = new ArrayList<RespuestaRecuperarXML>();
         int cont = 0;
         for (String u : uuid) {
@@ -514,9 +512,9 @@ public class ConectorDF {
     }
 
     private static RespuestaTFD40 timbrarCFDI(java.lang.String user, java.lang.String password, java.lang.String xml) {
-        dfacture.WSTimbradoSOAP service = new dfacture.WSTimbradoSOAP(wsdl);
-        dfacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         System.out.println(wsdl);
+        defacture.WSTimbradoSOAP service = new defacture.WSTimbradoSOAP(wsdl);
+        defacture.IWSTimbradoSOAP port = service.getSoapHttpEndpoint();
         return port.timbrarCFDI40(user, password, xml);
     }
 }

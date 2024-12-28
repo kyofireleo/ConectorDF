@@ -5,7 +5,7 @@
 package complementos.nominas;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.util.Calendar;
 
 /**
  *
@@ -15,7 +15,7 @@ public class Empleado {
     private String curp, nss, departamento, clabe, banco, puesto, tipoContrato, tipoJornada, periodicidadPago, riesgoPuesto, tipoRegimen;
     private String numEmpleado;
     private int idCliente;
-    private Date fechaInicialRelLaboral;
+    private Calendar fechaInicialRelLaboral;
     private BigDecimal salarioDiarioInt;
     private BigDecimal salarioBaseCotApor;
 
@@ -139,11 +139,11 @@ public class Empleado {
         this.numEmpleado = numEmpleado;
     }
 
-    public Date getFechaInicialRelLaboral() {
+    public Calendar getFechaInicialRelLaboral() {
         return fechaInicialRelLaboral;
     }
 
-    public void setFechaInicialRelLaboral(Date fechaInicialRelLaboral) {
+    public void setFechaInicialRelLaboral(Calendar fechaInicialRelLaboral) {
         this.fechaInicialRelLaboral = fechaInicialRelLaboral;
     }
 }

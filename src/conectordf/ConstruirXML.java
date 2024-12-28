@@ -44,10 +44,10 @@ import mx.grupocorasa.sat.cfd._40.Comprobante.CfdiRelacionados;
 import mx.grupocorasa.sat.cfd._40.Comprobante.Complemento;
 import mx.grupocorasa.sat.cfdi.v4.CFDv4;
 import mx.grupocorasa.sat.cfdi.v4.CFDv40;
-import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte;
-import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.FiguraTransporte;
-import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.Mercancias;
-import mx.grupocorasa.sat.common.CartaPorte20.CartaPorte.Ubicaciones;
+import mx.grupocorasa.sat.common.CartaPorte31.CartaPorte;
+import mx.grupocorasa.sat.common.CartaPorte31.CartaPorte.FiguraTransporte;
+import mx.grupocorasa.sat.common.CartaPorte31.CartaPorte.Mercancias;
+import mx.grupocorasa.sat.common.CartaPorte31.CartaPorte.Ubicaciones;
 import mx.grupocorasa.sat.common.Pagos20.Pagos;
 import mx.grupocorasa.sat.common.catalogos.CClaveUnidad;
 import mx.grupocorasa.sat.common.catalogos.CEstado;
@@ -109,11 +109,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class ConstruirXML {
-    
+
     List<String> layout;
     String noCertificado;
     utils.Utils util = new utils.Utils(log);
-    
+
     private boolean estado;
     private Long transId;
     private String uuid, rfcEmisor, fechaExp, fechaTim, nombreEmisor, folio, serie;
@@ -141,101 +141,130 @@ public class ConstruirXML {
     public String jsonDomicilios;
     private JsonObject json;
     private String sello;
-    
+    private String pathKey, pathCert, keyPass, regimenFiscalEmisor;
+
     private CTipoDeComprobante cTipoComp;
-    
+
+    public String getRegimenFiscalEmisor() {
+        return regimenFiscalEmisor;
+    }
+
+    public String getPathKey() {
+        return pathKey;
+    }
+
+    public void setPathKey(String pathKey) {
+        this.pathKey = pathKey;
+    }
+
+    public String getPathCert() {
+        return pathCert;
+    }
+
+    public void setPathCert(String pathCert) {
+        this.pathCert = pathCert;
+    }
+
+    public String getKeyPass() {
+        return keyPass;
+    }
+
+    public void setKeyPass(String keyPass) {
+        this.keyPass = keyPass;
+    }
+
     public String getNameXmlTimbrado() {
         return nameXmlTimbrado;
     }
-    
+
     public boolean getConUUID() {
         return !get("OCULTAR_UUID:").equals("1");
     }
-    
+
     public void setNameXmlTimbrado(String nameXmlTimbrado) {
         this.nameXmlTimbrado = nameXmlTimbrado;
     }
-    
+
     public String getUuid() {
         return uuid;
     }
-    
+
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
-    
+
     public String getXmlTimbrado() {
         return xmlTimbrado;
     }
-    
+
     public void setXmlTimbrado(String xmlTimbrado) {
         this.xmlTimbrado = xmlTimbrado;
     }
-    
+
     public String getCalleRe() {
         return calleRe;
     }
-    
+
     public String getNoExteriorRe() {
         return noExteriorRe;
     }
-    
+
     public String getNoInteriorRe() {
         return noInteriorRe;
     }
-    
+
     public String getColoniaRe() {
         return coloniaRe;
     }
-    
+
     public String getLocalidadRe() {
         return localidadRe;
     }
-    
+
     public String getMunicipioRe() {
         return municipioRe;
     }
-    
+
     public String getEstadoRe() {
         return estadoRe;
     }
-    
+
     public String getPaisRe() {
         return paisRe;
     }
-    
+
     public String getCpRe() {
         return cpRe;
     }
-    
+
     public String getRegistroPatronal() {
         return registroPatronal;
     }
-    
+
     public String getMetodoPago() {
         return metodoPago;
     }
-    
+
     public String getTipoComprobante() {
         return tipoComprobante;
     }
-    
+
     public String getTipoComprobanteLayout() {
         return tipoComprobanteLayout;
     }
-    
+
     public String getLeyenda() {
         return leyenda;
     }
-    
+
     public String getNombreReceptor() {
         return nombreReceptor;
     }
-    
+
     public String getRfcReceptor() {
         return rfcReceptor;
     }
-    
+
     public ConstruirXML(String estructuraNombre, List<String> layout, String noCertificado) {
         this.layout = layout;
         this.noCertificado = noCertificado;
@@ -244,10 +273,11 @@ public class ConstruirXML {
         rfcReceptor = get("RFC2:");
         serie = get("SERIE:");
         folio = get("FOLIO:");
+        regimenFiscalEmisor = get("REGIMENFISCAL:");
         nameXml = serie + "_" + folio + "_" + rfcEmisor + "_" + rfcReceptor;
         json = new JsonObject();
     }
-    
+
     public ConstruirXML(String estructuraNombre, List<String> layout) {
         this.layout = layout;
         layoutCadena = toString(layout);
@@ -255,12 +285,13 @@ public class ConstruirXML {
         rfcReceptor = get("RFC2:");
         serie = get("SERIE:");
         folio = get("FOLIO:");
+        regimenFiscalEmisor = get("REGIMENFISCAL:");
         nameXml = serie + "_" + folio + "_" + rfcEmisor + "_" + rfcReceptor;
         registroPatronal = get("REGISTROPATRONAL:");
         numEmpleado = "";
         json = new JsonObject();
     }
-    
+
     public ConstruirXML(String estructuraNombre, List<String> layout, File lay) throws Exception {
         this.layout = layout;
         layoutCadena = toString(layout);
@@ -272,18 +303,19 @@ public class ConstruirXML {
             throw new Exception("El layout no cuenta folio");
         }
         folio = fo;
+        regimenFiscalEmisor = get("REGIMENFISCAL:");
         nameXml = FilenameUtils.removeExtension(lay.getName());
         layoutFile = lay;
         registroPatronal = get("REGISTROPATRONAL:");
         numEmpleado = "";
         json = new JsonObject();
     }
-    
+
     public ConstruirXML(String xml) {
         this.xmlNoTimbrado = xml;
-        
+
     }
-    
+
     private String toString(List<String> lista) {
         StringBuilder sb = new StringBuilder();
         for (String x : lista) {
@@ -291,23 +323,23 @@ public class ConstruirXML {
         }
         return sb.toString();
     }
-    
+
     public void setFileLayout(File layoutFile) {
         this.layoutFile = layoutFile;
     }
-    
+
     public File getFileLayout() {
         return layoutFile;
     }
-    
+
     private BigDecimal redondear(double num) {
         return new BigDecimal(num).setScale(2, RoundingMode.HALF_UP);
     }
-    
+
     private BigDecimal redondear(BigDecimal num) {
         return num.setScale(2, RoundingMode.HALF_UP);
     }
-    
+
     public Nomina getNomina() throws ParseException, DatatypeConfigurationException {
         Nomina nomi = new Nomina();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -317,22 +349,22 @@ public class ConstruirXML {
         nomi.setDeducciones(getDeducciones());
         nomi.setPercepciones(getPercepciones());
         nomi.setIncapacidades(getIncapacidades());
-        double per = new Double(get("TOTAL_PER:"));
-        double ded = new Double(get("TOTAL_DEC:"));
-        double otp = new Double(get("TOTAL_OTP:"));
-        if (per > 0) {
-            nomi.setTotalPercepciones(util.redondear(new BigDecimal(per)));
+        BigDecimal per = new BigDecimal(get("TOTAL_PER:"));
+        BigDecimal ded = new BigDecimal(get("TOTAL_DEC:"));
+        BigDecimal otp = new BigDecimal(get("TOTAL_OTP:"));
+        if (per.compareTo(BigDecimal.ZERO) == 1) {
+            nomi.setTotalPercepciones(util.redondear(per));
         }
-        if (ded > 0) {
-            nomi.setTotalDeducciones(util.redondear(new BigDecimal(ded)));
+        if (ded.compareTo(BigDecimal.ZERO) == 1) {
+            nomi.setTotalDeducciones(util.redondear(ded));
         }
-        if (otp > 0 || (nomi.getOtrosPagos() != null && nomi.getOtrosPagos().getOtroPago().size() > 0)) {
-            nomi.setTotalOtrosPagos(util.redondear(new BigDecimal(otp)));
+        if (otp.compareTo(BigDecimal.ZERO) == 1 || (nomi.getOtrosPagos() != null && nomi.getOtrosPagos().getOtroPago().size() > 0)) {
+            nomi.setTotalOtrosPagos(util.redondear(otp));
         }
-        
+
         nomi.setEmisor(getEmisorNomina());
         nomi.setReceptor(getEmpleado());
-        
+
         String tipo = get("TIPO_NOMINA:");
         switch (tipo) {
             case "O":
@@ -345,25 +377,25 @@ public class ConstruirXML {
                 nomi.setTipoNomina(CTipoNomina.O);
                 break;
         }
-        
+
         cal.setTimeInMillis(format.parse(get("FECHA_FINAL_PAGO:")).getTime());
         x = java.time.LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
         nomi.setFechaFinalPago(x);
-        
+
         cal.setTimeInMillis(format.parse(get("FECHA_INICIAL_PAGO:")).getTime());
         x = java.time.LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
         nomi.setFechaInicialPago(x);
-        
+
         cal.setTimeInMillis(format.parse(get("FECHA_PAGO:")).getTime());
         x = java.time.LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
         nomi.setFechaPago(x);
-        
+
         nomi.setNumDiasPagados(new BigDecimal(get("NUM_DIAS_PAGADOS:")));
         nomi.setVersion("1.2");
-        
+
         return nomi;
     }
-    
+
     private Nomina.Receptor getEmpleado() throws ParseException, DatatypeConfigurationException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         java.time.LocalDate x;
@@ -378,20 +410,20 @@ public class ConstruirXML {
         empleado.getSubContratacion().add(sub);
          */
         empleado.setNumEmpleado(get("NUMEMPLEADO:"));
-        
+
         if (!get("BANCO:").isEmpty() /*&& get("CLABE:").isEmpty()*/) {
             empleado.setBanco(CBanco.fromValue(get("BANCO:")));
         }
         if (!get("CLABE:").isEmpty()) {
             empleado.setCuentaBancaria(get("CLABE:"));
         }
-        
+
         empleado.setCurp(get("CURP:"));
-        
+
         if (!get("DEPARTAMENTO:").isEmpty()) {
             empleado.setDepartamento(get("DEPARTAMENTO:"));
         }
-        
+
         empleado.setClaveEntFed(CEstado.SIN); //Hay que configurar esto
 
         String frl = get("FECHA_INICIAL_REL_LABORAL:");
@@ -400,48 +432,48 @@ public class ConstruirXML {
             x = java.time.LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
             empleado.setFechaInicioRelLaboral(x);
         }
-        
+
         if (!get("ANTIGUEDAD:").isEmpty()) {
             empleado.setAntigüedad(get("ANTIGUEDAD:"));
         }
         if (!get("NSS:").isEmpty()) {
             empleado.setNumSeguridadSocial(get("NSS:"));
         }
-        
+
         empleado.setPeriodicidadPago(CPeriodicidadPago.fromValue(get("PERIODICIDAD_PAGO:")));
-        
+
         if (!get("PUESTO:").isEmpty()) {
             empleado.setPuesto(get("PUESTO:"));
         }
         if (!get("RIESGO_PUESTO:").isEmpty()) {
             empleado.setRiesgoPuesto(CRiesgoPuesto.fromValue(get("RIESGO_PUESTO:")));
         }
-        
+
         String sb = get("SUELDO_BASE:");
         String sd = get("SALARIO_DIARIO_INT:");
-        
+
         if (!sb.isEmpty()) {
             empleado.setSalarioBaseCotApor(redondear(new BigDecimal(sb)));
         }
         if (!sd.isEmpty()) {
             empleado.setSalarioDiarioIntegrado(redondear(new BigDecimal(sd)));
         }
-        
+
         if (!get("TIPO_CONTRATO:").isEmpty()) {
             empleado.setTipoContrato(CTipoContrato.fromValue(get("TIPO_CONTRATO:")));
         }
         if (!get("TIPO_JORNADA:").isEmpty()) {
             empleado.setTipoJornada(CTipoJornada.fromValue(get("TIPO_JORNADA:")));
         }
-        
+
         empleado.setTipoRegimen(CTipoRegimen.fromValue(get("TIPO_REGIMEN:")));
-        
+
         return empleado;
     }
-    
+
     private Nomina.Emisor getEmisorNomina() {
         Nomina.Emisor emiNomi = new Nomina.Emisor();
-        int tipocon = new Integer(get("TIPO_CONTRATO:"));
+        int tipocon = Integer.parseInt(get("TIPO_CONTRATO:"));
         if (tipocon <= 8) {
             emiNomi.setRegistroPatronal(get("REGISTROPATRONAL:"));
         }
@@ -450,11 +482,11 @@ public class ConstruirXML {
         }
         return emiNomi;
     }
-    
+
     private Nomina.OtrosPagos getOtrosPagos() {
         Nomina.OtrosPagos ops = null;
         Nomina.OtrosPagos.OtroPago o;
-        
+
         if (posiOtrosPagos < posfOtrosPagos) {
             ops = new Nomina.OtrosPagos();
             for (int i = posiOtrosPagos; i < posfOtrosPagos; i++) {
@@ -463,13 +495,13 @@ public class ConstruirXML {
                 int pos = x.indexOf(":");
                 //Tipo@Clave@Concepto@Importe
                 String oo[] = x.substring(pos + 1).split("@");
-                
+
                 o.setTipoOtroPago(CTipoOtroPago.fromValue(oo[0].trim()));
                 o.setClave(oo[1].trim());
                 o.setConcepto(oo[2].trim());
                 o.setImporte(util.redondear(new BigDecimal(oo[3].trim())));
                 ops.getOtroPago().add(o);
-                
+
                 if (o.getTipoOtroPago().equals(CTipoOtroPago.VALUE_2)) {
                     o.setSubsidioAlEmpleo(getSubsidioAlEmpleo(o.getImporte()));
                 }
@@ -477,13 +509,13 @@ public class ConstruirXML {
         }
         return ops;
     }
-    
+
     private Nomina.OtrosPagos.OtroPago.SubsidioAlEmpleo getSubsidioAlEmpleo(BigDecimal importe) {
         Nomina.OtrosPagos.OtroPago.SubsidioAlEmpleo sem = new Nomina.OtrosPagos.OtroPago.SubsidioAlEmpleo();
         sem.setSubsidioCausado(importe);
         return sem;
     }
-    
+
     private Nomina.Percepciones getPercepciones() {
         Nomina.Percepciones per = null;
         Nomina.Percepciones.Percepcion p;
@@ -498,8 +530,8 @@ public class ConstruirXML {
                 int pos = x.indexOf(":");
                 //Tipo@Clave@Concepto@Gravado@Exento
                 String pp[] = x.substring(pos + 1).split("@");
-                gra += new Double(pp[3]);
-                exe += new Double(pp[4]);
+                gra += Double.parseDouble(pp[3]);
+                exe += Double.parseDouble(pp[4]);
                 
                 p.setTipoPercepcion(CTipoPercepcion.fromValue(pp[0].trim()));
                 p.setClave(pp[1].trim());
@@ -508,15 +540,15 @@ public class ConstruirXML {
                 p.setImporteExento(util.redondear(new BigDecimal(pp[4].trim())));
                 per.getPercepcion().add(p);
             }
-            
+
             per.setTotalExento(util.redondear(new BigDecimal(exe)));
             per.setTotalGravado(util.redondear(new BigDecimal(gra)));
             per.setTotalSueldos(util.redondear(new BigDecimal(exe + gra)));
-            
+
         }
         return per;
     }
-    
+
     private Nomina.Deducciones getDeducciones() {
         Nomina.Deducciones dec = null;
         Nomina.Deducciones.Deduccion d;
@@ -535,11 +567,11 @@ public class ConstruirXML {
                     continue;
                 }
                 if (pp[0].trim().equals("002")) {
-                    ret += new Double(pp[3]);
+                    ret += Double.parseDouble(pp[3]);
                 } else {
-                    exe += new Double(pp[3]);
+                    exe += Double.parseDouble(pp[3]);
                 }
-                
+
                 d.setTipoDeduccion(CTipoDeduccion.fromValue(pp[0].trim()));
                 d.setClave(pp[1].trim());
                 d.setConcepto(pp[2].trim());
@@ -555,7 +587,7 @@ public class ConstruirXML {
         }
         return dec;
     }
-    
+
     private Nomina.Incapacidades getIncapacidades() {
         Nomina.Incapacidades incas = null;
         Nomina.Incapacidades.Incapacidad inc;
@@ -565,20 +597,20 @@ public class ConstruirXML {
             incas = new Nomina.Incapacidades();
             inc = new Nomina.Incapacidades.Incapacidad();
             inc.setTipoIncapacidad(CTipoIncapacidad.fromValue(get("TIPO_INCAPACIDAD:")));
-            inc.setDiasIncapacidad(new Integer(get("DIAS_INCAPACIDAD:")));
+            inc.setDiasIncapacidad(Integer.parseInt(get("DIAS_INCAPACIDAD:")));
             inc.setImporteMonetario(util.redondear(new BigDecimal(get("DESCUENTO_INCAPACIDAD:"))));
             incas.getIncapacidad().add(inc);
         }
         return incas;
     }
-    
+
     private HorasExtra getHorasExtras() {
         HorasExtra horas = null;
         //Seteamos horas extra
         if (layout.contains("[HORAS_EXTRA]")) {
             horas = new HorasExtra();
-            horas.setDias(new Integer(get("DIAS:")));
-            horas.setHorasExtra(new Integer(get("NUM_HORAS_EXTRA:")));
+            horas.setDias(Integer.parseInt(get("DIAS:")));
+            horas.setHorasExtra(Integer.parseInt(get("NUM_HORAS_EXTRA:")));
             horas.setTipoHoras(CTipoHoras.fromValue(get("TIPO_HORAS:")));
             horas.setImportePagado(util.redondear(new BigDecimal(get("IMPORTE_PAGADO:"))));
         }
@@ -589,57 +621,59 @@ public class ConstruirXML {
      * *************CARTA PORTE*****************
      */
     private CartaPorte getCartaPorte() throws Exception {
-        mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob = new mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory();
+        mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob = new mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory();
         CartaPorte cp = ob.createCartaPorte();
         boolean isInternational = false;
-        
+
         if (posiCartaPorte < posfCartaPorte) {
             StringBuilder text = new StringBuilder();
             JsonObject jsonCarta;
-            
+
             for (int i = posiCartaPorte; i < posfCartaPorte; i++) {
                 text.append(layout.get(i));
             }
-            
+
             jsonCarta = JsonParser.parseString(text.toString()).getAsJsonObject();
-            
-            cp.setVersion("2.0");
+
+            cp.setVersion("3.1");
             cp.setTotalDistRec(jsonCarta.get("TotalDistRec").getAsBigDecimal());
             cp.setTranspInternac(getAsString(jsonCarta.get("TranspInternac")));
-            
+
             if (cp.getTranspInternac().equals("Sí")) {
                 cp.setPaisOrigenDestino(CPais.fromValue(jsonCarta.get("PaisOrigenDestino").getAsString()));
                 cp.setEntradaSalidaMerc(getAsString(jsonCarta.get("EntradaSalidaMerc")));
                 cp.setViaEntradaSalida(CCveTransporte.fromValue(jsonCarta.get("ViaEntradaSalida").getAsString()));
                 isInternational = true;
             }
-            
-            cp.setFiguraTransporte(getFiguraTransporte(ob, jsonCarta.get("FiguraTransporte"))); //implementar metodo
+
+            if (jsonCarta.has("FiguraTransporte") && !jsonCarta.get("FiguraTransporte").isJsonNull()) {
+                cp.setFiguraTransporte(getFiguraTransporte(ob, jsonCarta.get("FiguraTransporte")));
+            }
             cp.setMercancias(getMercancias(ob, jsonCarta.get("Mercancias"), isInternational));
             cp.setUbicaciones(getUbicaciones(ob, jsonCarta.get("Ubicaciones")));
         }
-        
+
         return cp;
     }
-    
-    private Ubicaciones getUbicaciones(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonUbi) throws Exception {
+
+    private Ubicaciones getUbicaciones(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonUbi) throws Exception {
         Ubicaciones ubi = null;
         Ubicaciones.Ubicacion u;
-        
+
         JsonArray arrUbi;
         JsonObject ubica;
-        
+
         DateTimeFormatter dtf;
-        
+
         if (!jsonUbi.isJsonNull() && jsonUbi.isJsonArray() && jsonUbi.getAsJsonArray().size() > 0) {
             arrUbi = jsonUbi.getAsJsonArray();
             ubi = ob.createCartaPorteUbicaciones();
-            dtf = DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss");
-            
+            dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
             for (int i = 0; i < arrUbi.size(); i++) {
                 ubica = arrUbi.get(i).getAsJsonObject();
                 u = ob.createCartaPorteUbicacionesUbicacion();
-                
+
                 u.setTipoUbicacion(getAsString(ubica.get("TipoUbicacion")));
                 u.setIDUbicacion(getAsString(ubica.get("IDUbicacion")));
                 u.setRFCRemitenteDestinatario(getAsString(ubica.get("RFCRemitenteDestinatario")));
@@ -648,7 +682,7 @@ public class ConstruirXML {
                 if (u.getTipoUbicacion().equals("Destino")) {
                     u.setDistanciaRecorrida(ubica.get("DistanciaRecorrida").getAsBigDecimal());
                 }
-                
+
                 if (ubica.has("TipoEstacion")) {
                     u.setTipoEstacion(CTipoEstacion.fromValue(ubica.get("TipoEstacion").getAsString()));
                 }
@@ -661,18 +695,18 @@ public class ConstruirXML {
                 if (ubica.has("NavegacionTrafico")) {
                     u.setNavegacionTrafico(getAsString(ubica.get("NavegacionTrafico")));
                 }
-                
+
                 if (u.getRFCRemitenteDestinatario() != null && u.getRFCRemitenteDestinatario().equalsIgnoreCase("XEXX010101000")) {
                     if (ubica.has("NumRegIdTrib")) {
                         u.setNumRegIdTrib(getAsString(ubica.get("NumRegIdTrib")));
                         u.setResidenciaFiscal(CPais.fromValue(ubica.get("ResidenciaFiscal").getAsString()));
                     }
                 }
-                
+
                 JsonObject ubiDom = ubica.has("Domicilio") ? ubica.get("Domicilio").getAsJsonObject() : null;
                 if (ubiDom != null) {
                     Ubicaciones.Ubicacion.Domicilio d = ob.createCartaPorteUbicacionesUbicacionDomicilio();
-                    
+
                     if (ubiDom.has("Calle")) {
                         d.setCalle(getAsString(ubiDom.get("Calle")));
                     }
@@ -694,59 +728,59 @@ public class ConstruirXML {
                     if (ubiDom.has("Referencia")) {
                         d.setReferencia(getAsString(ubiDom.get("Referencia")));
                     }
-                    
+
                     d.setEstado(getAsString(ubiDom.get("Estado")));
                     d.setPais(CPais.fromValue(ubiDom.get("Pais").getAsString()));
                     d.setCodigoPostal(getAsString(ubiDom.get("CodigoPostal")));
-                    
+
                     u.setDomicilio(d);
                 }
-                
+
                 ubi.getUbicacion().add(u);
             }
         }
-        
+
         return ubi;
     }
-    
-    private Mercancias getMercancias(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonMer, boolean isInternational) {
+
+    private Mercancias getMercancias(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonMer, boolean isInternational) {
         Mercancias mr = null;
-        
+
         JsonObject merca;
         JsonArray arrMer;
-        
+
         boolean isMaterialPeligroso = false;
-        
+
         if (!jsonMer.isJsonNull() && jsonMer.isJsonObject()) {
             mr = ob.createCartaPorteMercancias();
             merca = jsonMer.getAsJsonObject();
-            
+
             mr.setPesoBrutoTotal(merca.get("PesoBrutoTotal").getAsBigDecimal());
             mr.setUnidadPeso(CClaveUnidadPeso.fromValue(merca.get("UnidadPeso").getAsString()));
             mr.setNumTotalMercancias(merca.get("NumTotalMercancias").getAsInt());
-            
+
             if (merca.has("PesoNetoTotal")) {
                 mr.setPesoNetoTotal(merca.get("PesoNetoTotal").getAsBigDecimal());
             }
             if (merca.has("CargoPorTasacion")) {
                 mr.setCargoPorTasacion(merca.get("CargoPorTasacion").getAsBigDecimal());
             }
-            
+
             arrMer = merca.has("Mercancia") && merca.get("Mercancia").isJsonArray() ? merca.get("Mercancia").getAsJsonArray() : null;
             if (arrMer != null && arrMer.size() > 0) {
                 Mercancias.Mercancia m;
                 JsonObject mer;
-                
+
                 for (int i = 0; i < arrMer.size(); i++) {
                     m = ob.createCartaPorteMercanciasMercancia();
                     mer = arrMer.get(i).getAsJsonObject();
-                    
+
                     m.setBienesTransp(getAsString(mer.get("BienesTransp")));
                     m.setDescripcion(getAsString(mer.get("Descripcion")));
                     m.setCantidad(mer.get("Cantidad").getAsBigDecimal());
                     m.setClaveUnidad(CClaveUnidad.fromValue(mer.get("ClaveUnidad").getAsString()));
                     m.setPesoEnKg(mer.get("PesoEnKg").getAsBigDecimal());
-                    
+
                     if (mer.has("Unidad")) {
                         m.setUnidad(getAsString(mer.get("Unidad")));
                     }
@@ -764,78 +798,83 @@ public class ConstruirXML {
                             isMaterialPeligroso = true;
                         }
                     }
-                    
+
                     if (mer.has("ValorMercancia")) {
                         m.setValorMercancia(mer.get("ValorMercancia").getAsBigDecimal());
                         m.setMoneda(CMoneda.fromValue(mer.get("Moneda").getAsString()));
                     }
-                    
+
                     if (mer.has("ClaveSTCC")) {
                         m.setClaveSTCC(getAsString(mer.get("ClaveSTCC")));
                     }
-                    
+
                     if (isInternational) {
                         m.setFraccionArancelaria(getAsString(mer.get("FraccionArancelaria")));
                         m.setUUIDComercioExt(getAsString(mer.get("UUIDComercioExt")));
                         
+                        /*Se quita por version 3.0 de CartaPorte
                         if (mer.has("Pedimentos") && mer.get("Pedimentos").isJsonArray() && mer.get("Pedimentos").getAsJsonArray().size() > 0) {
                             JsonArray arrPed = mer.get("Pedimentos").getAsJsonArray();
                             Mercancias.Mercancia.Pedimentos p;
-                            
+
                             for (int j = 0; j < arrPed.size(); j++) {
                                 p = ob.createCartaPorteMercanciasMercanciaPedimentos();
-                                
+
                                 p.setPedimento(getAsString(arrPed.get(j)));
-                                
+
                                 if (p.getPedimento() != null) {
                                     m.getPedimentos().add(p);
                                 }
                             }
                         }
+                        */
                     }
-                    
+
                     if (mer.has("Detalle")) {
                         JsonObject merDet = mer.get("Detalle").getAsJsonObject();
                         Mercancias.Mercancia.DetalleMercancia dm = ob.createCartaPorteMercanciasMercanciaDetalleMercancia();
-                        
+
                         dm.setPesoBruto(merDet.get("PesoBruto").getAsBigDecimal());
                         dm.setPesoNeto(merDet.get("PesoNeto").getAsBigDecimal());
                         dm.setPesoTara(merDet.get("PesoTara").getAsBigDecimal());
                         dm.setUnidadPesoMerc(CClaveUnidadPeso.fromValue(merDet.get("UnidadPesoMerc").getAsString()));
-                        
+
                         if (merDet.has("NumPiezas")) {
                             dm.setNumPiezas(merDet.get("NumPiezas").getAsInt());
                         }
-                        
+
                         m.setDetalleMercancia(dm);
                     }
-                    
+
                     if (mer.has("CantidadTransporta")) {
-                        JsonObject merCT = mer.get("CantidadTransporta").getAsJsonObject();
+                        JsonArray merArray = mer.get("CantidadTransporta").getAsJsonArray();
                         Mercancias.Mercancia.CantidadTransporta ct = ob.createCartaPorteMercanciasMercanciaCantidadTransporta();
-                        
-                        ct.setCantidad(merCT.get("Cantidad").getAsBigDecimal());
-                        ct.setIDDestino(getAsString(merCT.get("IDDestino")));
-                        ct.setIDOrigen(getAsString(merCT.get("IDOrigen")));
-                        if (merCT.has("CvesTransporte")) {
-                            ct.setCvesTransporte(CCveTransporte.fromValue(merCT.get("CvesTransporte").getAsString()));
+
+                        for (int j = 0; j < merArray.size(); j++) {
+                            JsonObject merCT = merArray.get(j).getAsJsonObject();
+                            ct.setCantidad(merCT.get("Cantidad").getAsBigDecimal());
+                            ct.setIDDestino(getAsString(merCT.get("IDDestino")));
+                            ct.setIDOrigen(getAsString(merCT.get("IDOrigen")));
+                            if (merCT.has("CvesTransporte")) {
+                                ct.setCvesTransporte(CCveTransporte.fromValue(merCT.get("CvesTransporte").getAsString()));
+                            }
+
+                            m.getCantidadTransporta().add(ct);
                         }
-                        
-                        m.getCantidadTransporta().add(ct);
                     }
-                    
+
                     if (mer.has("GuiasIdentificacion")) {
                         JsonObject merGI = mer.get("GuiasIdentificacion").getAsJsonObject();
                         Mercancias.Mercancia.GuiasIdentificacion gi = ob.createCartaPorteMercanciasMercanciaGuiasIdentificacion();
                         gi.setDescripGuiaIdentificacion(getAsString(merGI.get("DescripGuiaIdentificacion")));
                         gi.setNumeroGuiaIdentificacion(getAsString(merGI.get("NumeroGuiaIdentificacion")));
                         gi.setPesoGuiaIdentificacion(merGI.get("PesoGuiaIdentificacion").getAsBigDecimal());
-                        
+
                         m.getGuiasIdentificacion().add(gi);
                     }
                 }
             }
-            
+
             if (merca.has("Autotransporte")) {
                 JsonElement auto = merca.get("Autotransporte");
                 mr.setAutotransporte(getMercaAutotransporte(ob, auto, isMaterialPeligroso));
@@ -852,78 +891,78 @@ public class ConstruirXML {
         }
         return mr;
     }
-    
-    private Mercancias.Autotransporte getMercaAutotransporte(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonAuto, boolean isMaterialPeligroso) {
+
+    private Mercancias.Autotransporte getMercaAutotransporte(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonAuto, boolean isMaterialPeligroso) {
         Mercancias.Autotransporte at = null;
-        
+
         if (!jsonAuto.isJsonNull() && jsonAuto.isJsonObject()) {
             JsonObject auto = jsonAuto.getAsJsonObject();
             at = ob.createCartaPorteMercanciasAutotransporte();
-            
+
             at.setPermSCT(CTipoPermiso.fromValue(auto.get("PermSCT").getAsString()));
             at.setNumPermisoSCT(getAsString(auto.get("NumPermisoSCT")));
-            
+
             if (auto.has("IdentificacionVehicular")) {
                 JsonObject id = auto.get("IdentificacionVehicular").getAsJsonObject();
                 Mercancias.Autotransporte.IdentificacionVehicular ident = ob.createCartaPorteMercanciasAutotransporteIdentificacionVehicular();
-                
+
                 ident.setConfigVehicular(CConfigAutotransporte.fromValue(id.get("ConfigVehicular").getAsString()));
                 ident.setPlacaVM(getAsString(id.get("PlacaVM")));
                 ident.setAnioModeloVM(id.get("AnioModeloVM").getAsInt());
-                
+
                 at.setIdentificacionVehicular(ident);
             }
-            
+
             if (auto.has("Seguros")) {
                 JsonObject segu = auto.get("Seguros").getAsJsonObject();
                 Mercancias.Autotransporte.Seguros seg = ob.createCartaPorteMercanciasAutotransporteSeguros();
-                
+
                 seg.setAseguraRespCivil(getAsString(segu.get("AseguraRespCivil")));
                 seg.setPolizaRespCivil(getAsString(segu.get("PolizaRespCivil")));
-                
+
                 if (isMaterialPeligroso) {
                     seg.setAseguraMedAmbiente(getAsString(segu.get("AseguraMedAmbiente")));
                     seg.setPolizaMedAmbiente(getAsString(segu.get("PolizaMedAmbiente")));
                 }
-                
+
                 if (segu.has("AseguraCarga")) {
                     seg.setAseguraCarga(getAsString(segu.get("AseguraCarga")));
                     seg.setPolizaCarga(getAsString(segu.get("PolizaCarga")));
                 }
-                
+
                 seg.setPrimaSeguro(segu.get("PrimaSeguro").getAsBigDecimal());
-                
+
                 at.setSeguros(seg);
             }
-            
+
             if (auto.has("Remolques") && auto.get("Remolques").isJsonArray() && auto.get("Remolques").getAsJsonArray().size() > 0) {
                 JsonArray arrRem = auto.get("Remolques").getAsJsonArray();
                 Mercancias.Autotransporte.Remolques remol = ob.createCartaPorteMercanciasAutotransporteRemolques();
-                
+
                 for (int i = 0; i < arrRem.size(); i++) {
                     JsonObject remo = arrRem.get(i).getAsJsonObject();
                     Mercancias.Autotransporte.Remolques.Remolque r = ob.createCartaPorteMercanciasAutotransporteRemolquesRemolque();
-                    
+
                     r.setSubTipoRem(CSubTipoRem.fromValue(remo.get("SubTipoRem").getAsString()));
                     r.setPlaca(getAsString(remo.get("Placa")));
-                    
+
                     remol.getRemolque().add(r);
                 }
-                
+
                 at.setRemolques(remol);
             }
         }
-        
+
         return at;
     }
-    
-    private Mercancias.TransporteAereo getMercaTransporteAereo(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonAero) {
+
+    private Mercancias.TransporteAereo getMercaTransporteAereo(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonAero) {
         Mercancias.TransporteAereo aereo = null;
-        
+
         if (!jsonAero.isJsonNull() && jsonAero.isJsonObject()) {
             JsonObject aero = jsonAero.getAsJsonObject();
             aereo = ob.createCartaPorteMercanciasTransporteAereo();
-            
+
             aereo.setCodigoTransportista(CCodigoTransporteAereo.fromValue(aero.get("CodigoTransportista").getAsString()));
             aereo.setLugarContrato(getAsString(aero.get("LugarContrato")));
             aereo.setNumeroGuia(getAsString(aero.get("NumeroGuia")));
@@ -937,82 +976,82 @@ public class ConstruirXML {
             aereo.setNumRegIdTribEmbarc(getAsString(aero.get("NumRegIdTribEmbarc")));
             aereo.setResidenciaFiscalEmbarc(CPais.fromValue(aero.get("ResidenciaFiscalEmbarc").getAsString()));
         }
-        
+
         return aereo;
     }
-    
-    private Mercancias.TransporteFerroviario getMercaTransporteFerroviario(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonFerro) {
+
+    private Mercancias.TransporteFerroviario getMercaTransporteFerroviario(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonFerro) {
         Mercancias.TransporteFerroviario tren = null;
-        
+
         if (!jsonFerro.isJsonNull() && jsonFerro.isJsonObject()) {
             JsonObject ferro = jsonFerro.getAsJsonObject();
             tren = ob.createCartaPorteMercanciasTransporteFerroviario();
-            
+
             tren.setNombreAseg(folio);
             tren.setNumPolizaSeguro(folio);
             tren.setTipoDeServicio(CTipoDeServicio.TS_01);
             tren.setTipoDeTrafico(CTipoDeTrafico.TT_01);
-            
+
             if (ferro.has("Carro") && ferro.get("Carro").isJsonArray() && ferro.get("Carro").getAsJsonArray().size() > 0) {
                 JsonArray arrCarro = ferro.get("Carro").getAsJsonArray();
                 Mercancias.TransporteFerroviario.Carro car;
-                
+
                 for (int i = 0; i < arrCarro.size(); i++) {
                     JsonObject carro = arrCarro.get(i).getAsJsonObject();
                     car = ob.createCartaPorteMercanciasTransporteFerroviarioCarro();
-                    
+
                     car.setGuiaCarro(getAsString(carro.get("GuiaCarro")));
                     car.setMatriculaCarro(getAsString(carro.get("MatriculaCarro")));
                     car.setTipoCarro(CTipoCarro.fromValue(carro.get("TipoCarro").getAsString()));
                     car.setToneladasNetasCarro(carro.get("ToneladasNetasCarro").getAsBigDecimal());
-                    
+
                     if (carro.has("Contenedor") && carro.get("Contenedor").isJsonArray() && carro.get("Contenedor").getAsJsonArray().size() > 0) {
                         JsonArray arrCon = carro.get("Contenedor").getAsJsonArray();
                         Mercancias.TransporteFerroviario.Carro.Contenedor conte;
-                        
+
                         for (int j = 0; j < arrCon.size(); j++) {
                             JsonObject con = arrCon.get(j).getAsJsonObject();
                             conte = ob.createCartaPorteMercanciasTransporteFerroviarioCarroContenedor();
-                            
+
                             conte.setTipoContenedor(CContenedor.fromValue(con.get("TipoContenedor").getAsString()));
                             conte.setPesoContenedorVacio(con.get("PesoContenedorVacio").getAsBigDecimal());
                             conte.setPesoNetoMercancia(con.get("PesoNetoMercancia").getAsBigDecimal());
-                            
+
                             car.getContenedor().add(conte);
                         }
                     }
-                    
+
                     tren.getCarro().add(car);
                 }
             }
-            
+
             if (ferro.has("DerechosDePaso") && ferro.get("DerechosDePaso").isJsonArray() && ferro.get("DerechosDePaso").getAsJsonArray().size() > 0) {
                 JsonArray arrPaso = ferro.get("DerechosDePaso").getAsJsonArray();
                 Mercancias.TransporteFerroviario.DerechosDePaso der;
-                
+
                 for (int i = 0; i < arrPaso.size(); i++) {
                     JsonObject paso = arrPaso.get(i).getAsJsonObject();
                     der = ob.createCartaPorteMercanciasTransporteFerroviarioDerechosDePaso();
-                    
+
                     der.setTipoDerechoDePaso(CDerechosDePaso.fromValue(paso.get("TipoDerechoDePaso").getAsString()));
                     der.setKilometrajePagado(paso.get("KilometrajePagado").getAsBigDecimal());
-                    
+
                     tren.getDerechosDePaso().add(der);
                 }
             }
         }
-        
+
         return tren;
     }
-    
-    private Mercancias.TransporteMaritimo getMercaTransporteMaritimo(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonMari) {
+
+    private Mercancias.TransporteMaritimo getMercaTransporteMaritimo(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonMari) {
         Mercancias.TransporteMaritimo barco = null;
         JsonObject mari;
-        
+
         if (!jsonMari.isJsonNull() && jsonMari.isJsonObject()) {
             mari = jsonMari.getAsJsonObject();
             barco = ob.createCartaPorteMercanciasTransporteMaritimo();
-            
+
             barco.setAnioEmbarcacion(mari.get("AnioEmbarcacion").getAsInt());
             barco.setCalado(mari.get("Calado").getAsBigDecimal());
             barco.setEslora(mari.get("Eslora").getAsBigDecimal());
@@ -1024,7 +1063,7 @@ public class ConstruirXML {
             barco.setNombreAseg(getAsString(mari.get("NombreAseg")));
             barco.setNombreEmbarc(getAsString(mari.get("NombreEmbarc")));
             barco.setNumAutorizacionNaviero(CNumAutorizacionNaviero.fromValue(mari.get("NumAutorizacionNaviero").getAsString()));
-            barco.setNumCertITC(getAsString(mari.get("NumCertITC")));
+            //barco.setNumCertITC(getAsString(mari.get("NumCertITC"))); //Se quita por versio 3.0 de CartaPorte
             barco.setNumConocEmbarc(getAsString(mari.get("NumConocEmbarc")));
             barco.setNumPermisoSCT(getAsString(mari.get("NumPermisoSCT")));
             barco.setNumPolizaSeguro(getAsString(mari.get("NumPolizaSeguro")));
@@ -1034,30 +1073,30 @@ public class ConstruirXML {
             barco.setTipoCarga(CClaveTipoCarga.fromValue(mari.get("TipoCarga").getAsString()));
             barco.setTipoEmbarcacion(CConfigMaritima.fromValue(mari.get("TipoEmbarcacion").getAsString()));
             barco.setUnidadesDeArqBruto(mari.get("UnidadesDeArqBruto").getAsBigDecimal());
-            
+
             if (mari.has("Contenedor") && mari.get("Contenedor").isJsonArray() && mari.get("Contenedor").getAsJsonArray().size() > 0) {
                 JsonArray arrCon = mari.get("Contenedor").getAsJsonArray();
                 Mercancias.TransporteMaritimo.Contenedor conte;
-                
+
                 for (int i = 0; i < arrCon.size(); i++) {
                     JsonObject con = arrCon.get(i).getAsJsonObject();
                     conte = ob.createCartaPorteMercanciasTransporteMaritimoContenedor();
-                    
+
                     conte.setTipoContenedor(CContenedorMaritimo.fromValue(con.get("TipoContenedor").getAsString()));
                     conte.setMatriculaContenedor(getAsString(con.get("MatriculaContenedor")));
                     conte.setNumPrecinto(getAsString(con.get("NumPrecinto")));
-                    
+
                     barco.getContenedor().add(conte);
                 }
             }
         }
-        
+
         return barco;
     }
-    
-    private FiguraTransporte getFiguraTransporte(mx.grupocorasa.sat.common.CartaPorte20.ObjectFactory ob, JsonElement jsonFt) throws Exception {
+
+    private FiguraTransporte getFiguraTransporte(mx.grupocorasa.sat.common.CartaPorte31.ObjectFactory ob, JsonElement jsonFt) throws Exception {
         FiguraTransporte ft = null;
-        
+
         FiguraTransporte.TiposFigura tif;
         String nombreFigura,
                 numLicencia,
@@ -1065,54 +1104,54 @@ public class ConstruirXML {
                 rfcFigura,
                 resiFiscalFigura,
                 tipoFigura;
-        
+
         FiguraTransporte.TiposFigura.Domicilio dom;
         JsonArray arrFt;
-        
+
         if (!jsonFt.isJsonNull() && jsonFt.isJsonArray() && jsonFt.getAsJsonArray().size() > 0) {
             ft = ob.createCartaPorteFiguraTransporte();
             arrFt = jsonFt.getAsJsonArray();
             JsonObject fig;
-            
+
             for (int i = 0; i < arrFt.size(); i++) {
                 tif = ob.createCartaPorteFiguraTransporteTiposFigura();
                 fig = arrFt.get(i).getAsJsonObject();
-                
+
                 tipoFigura = fig.get("TipoFigura").getAsString();
                 nombreFigura = getAsString(fig.get("NombreFigura"));
                 numLicencia = getAsString(fig.get("NumLicencia"));
                 rfcFigura = getAsString(fig.get("RFCFigura"));
                 numRegIdFigura = fig.has("NumRegIdFigura") ? getAsString(fig.get("NumRegIdFigura")) : null;
                 resiFiscalFigura = fig.has("ResidenciaFiscalFigura") ? getAsString(fig.get("ResidenciaFiscalFigura")) : null;
-                
+
                 tif.setTipoFigura(CFiguraTransporte.fromValue(tipoFigura));
                 tif.setRFCFigura(rfcFigura);
                 tif.setNumLicencia(numLicencia);
                 tif.setNombreFigura(nombreFigura);
                 tif.setNumRegIdTribFigura(numRegIdFigura);
-                
+
                 if (numRegIdFigura != null) {
                     tif.setResidenciaFiscalFigura(CPais.fromValue(resiFiscalFigura));
                 }
-                
+
                 if (tipoFigura.equals("02") || tipoFigura.equals("03")) {
                     if (fig.has("PartesTransporte") && fig.get("PartesTransporte").isJsonArray() && fig.get("PartesTransporte").getAsJsonArray().size() > 0) {
                         JsonArray arrPt = fig.get("PartesTransporte").getAsJsonArray();
                         FiguraTransporte.TiposFigura.PartesTransporte pt;
-                        
+
                         for (int j = 0; j < arrPt.size(); j++) {
                             pt = ob.createCartaPorteFiguraTransporteTiposFiguraPartesTransporte();
                             pt.setParteTransporte(CParteTransporte.fromValue(arrPt.get(j).getAsString()));
-                            
+
                             tif.getPartesTransporte().add(pt);
                         }
                     }
                 }
-                
+
                 if (fig.has("Domicilios")) {
                     JsonObject domi = fig.get("Domicilios").getAsJsonObject();
                     dom = ob.createCartaPorteFiguraTransporteTiposFiguraDomicilio();
-                    
+
                     if (domi.has("Calle")) {
                         dom.setCalle(getAsString(domi.get("Calle")));
                     }
@@ -1134,21 +1173,21 @@ public class ConstruirXML {
                     if (domi.has("Municipio")) {
                         dom.setMunicipio(getAsString(domi.get("Municipio")));
                     }
-                    
+
                     dom.setEstado(getAsString(domi.get("Estado")));
                     dom.setPais(CPais.fromValue(domi.get("Pais").getAsString()));
                     dom.setCodigoPostal(getAsString(domi.get("CodigoPostal")));
-                    
+
                     tif.setDomicilio(dom);
                 }
-                
+
                 ft.getTiposFigura().add(tif);
             }
         }
-        
+
         return ft;
     }
-    
+
     private String getAsString(JsonElement je) {
         return je.isJsonNull() ? null : je.getAsString().trim();
     }
@@ -1166,7 +1205,7 @@ public class ConstruirXML {
         sb.append("</ine:INE>");
         return sb.toString();
     }
-    
+
     private ImpuestosLocales getImpuestosLocales() {
         if (!get("TOTALTRASLADOSLOCALES:").isEmpty()) {
             mx.grupocorasa.sat.common.implocal10.ObjectFactory of = new mx.grupocorasa.sat.common.implocal10.ObjectFactory();
@@ -1174,7 +1213,7 @@ public class ConstruirXML {
             il.setVersion("1.0");
             il.setTotaldeTraslados(util.redondear(new BigDecimal(get("TOTALTRASLADOSLOCALES:"))));
             il.setTotaldeRetenciones(util.redondear(new BigDecimal(get("TOTALRETENCIONESLOCALES:"))));
-            
+
             if (posiLocalTraslados < posfLocalTraslados) {
                 for (int i = posiLocalTraslados; i < posfLocalTraslados; i++) {
                     ImpuestosLocales.TrasladosLocales ilt = of.createImpuestosLocalesTrasladosLocales();
@@ -1182,11 +1221,11 @@ public class ConstruirXML {
                     ilt.setImpLocTrasladado(t[0]);
                     ilt.setTasadeTraslado(util.redondear(new BigDecimal(t[1])));
                     ilt.setImporte(util.redondear(new BigDecimal(t[2])));
-                    
+
                     il.getRetencionesLocalesAndTrasladosLocales().add(ilt);
                 }
             }
-            
+
             if (posiLocalRetenciones < posfLocalRetenciones) {
                 for (int i = posiLocalRetenciones; i < posfLocalRetenciones; i++) {
                     ImpuestosLocales.RetencionesLocales ilr = of.createImpuestosLocalesRetencionesLocales();
@@ -1194,23 +1233,23 @@ public class ConstruirXML {
                     ilr.setImpLocRetenido(r[0]);
                     ilr.setTasadeRetencion(util.redondear(new BigDecimal(r[1])));
                     ilr.setImporte(util.redondear(new BigDecimal(r[2])));
-                    
+
                     il.getRetencionesLocalesAndTrasladosLocales().add(ilr);
                 }
             }
-            
+
             return il;
         } else {
             return null;
         }
     }
-    
+
     private mx.grupocorasa.sat.common.Pagos20.Pagos getPagos() {
         if (posiPagos > 0) {
             mx.grupocorasa.sat.common.Pagos20.ObjectFactory obj = new mx.grupocorasa.sat.common.Pagos20.ObjectFactory();
             mx.grupocorasa.sat.common.Pagos20.Pagos pagos = obj.createPagos();
             pagos.setVersion("2.0");
-            
+
             //Totales
             mx.grupocorasa.sat.common.Pagos20.Pagos.Totales totales = obj.createPagosTotales();
             BigDecimal montoTotalPagos = redondear(new BigDecimal(get("MontoTotalPagos")));
@@ -1224,53 +1263,57 @@ public class ConstruirXML {
             BigDecimal totalTrasladosBaseIVA0 = redondear(new BigDecimal(get("TotalTrasladosBaseIVA0")));
             BigDecimal totalTrasladosImpuestoIVA0 = redondear(new BigDecimal(get("TotalTrasladosImpuestoIVA0")));
             BigDecimal totalTrasladosBaseIVAExento = redondear(new BigDecimal(get("TotalTrasladosBaseIVAExento")));
-            
+
             totales.setMontoTotalPagos(montoTotalPagos);
-            
-            if(totalRetensionesIEPS.compareTo(BigDecimal.ZERO) == 1)
+
+            if (totalRetensionesIEPS.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalRetencionesIEPS(totalRetensionesIEPS);
-            if(totalRetencionesIVA.compareTo(BigDecimal.ZERO) == 1)
+            }
+            if (totalRetencionesIVA.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalRetencionesIVA(totalRetencionesIVA);
-            if(totalRetensionesISR.compareTo(BigDecimal.ZERO) == 1)
+            }
+            if (totalRetensionesISR.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalRetencionesISR(totalRetensionesISR);
-            
-            if(totalTrasladosBaseIVA0.compareTo(BigDecimal.ZERO) == 1){
+            }
+
+            if (totalTrasladosBaseIVA0.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalTrasladosBaseIVA0(totalTrasladosBaseIVA0);
                 totales.setTotalTrasladosImpuestoIVA0(totalTrasladosImpuestoIVA0);
             }
-            if(totalTrasladosBaseIVA8.compareTo(BigDecimal.ZERO) == 1){
+            if (totalTrasladosBaseIVA8.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalTrasladosBaseIVA8(totalTrasladosBaseIVA8);
                 totales.setTotalTrasladosImpuestoIVA8(totalTrasladosImpuestoIVA8);
             }
-            if(totalTrasladosBaseIVA16.compareTo(BigDecimal.ZERO) == 1){
+            if (totalTrasladosBaseIVA16.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalTrasladosBaseIVA16(totalTrasladosBaseIVA16);
                 totales.setTotalTrasladosImpuestoIVA16(totalTrasladosImpuestoIVA16);
             }
-            if(totalTrasladosBaseIVAExento.compareTo(BigDecimal.ZERO) == 1)
+            if (totalTrasladosBaseIVAExento.compareTo(BigDecimal.ZERO) == 1) {
                 totales.setTotalTrasladosBaseIVAExento(totalTrasladosBaseIVAExento);
+            }
 
             pagos.setTotales(totales);
-            
+
             int cont = 0;
             int contDoc = 0;
             boolean isExento = false;
             boolean isTasa0 = false;
             boolean isTasa8 = false;
-            
+
             for (int i = posiPagos; i < posfPagos; i++) {
                 cont++;
                 try {
                     String[] rowPay = layout.get(i).split(":")[1].trim().split("@");
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    
+
                     Date fechaAuto = sdf.parse(rowPay[8]);
                     GregorianCalendar c = new GregorianCalendar();
                     c.setTime(fechaAuto);
                     java.time.LocalDateTime xc = java.time.LocalDateTime.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1, c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
-                    
+
                     //Pagos
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago p = obj.createPagosPago();
-                    
+
                     p.setCtaBeneficiario(rowPay[0].equals(".") ? null : rowPay[0]);
                     p.setCtaOrdenante(rowPay[2].equals(".") ? null : rowPay[2]);
                     p.setFechaPago(xc);
@@ -1280,28 +1323,29 @@ public class ConstruirXML {
                     p.setRfcEmisorCtaBen(rowPay[0].equals(".") ? null : rowPay[1]);
                     p.setRfcEmisorCtaOrd(rowPay[2].equals(".") ? null : rowPay[3]);
                     p.setTipoCambioP(rowPay[6].equals(".") ? null : new BigDecimal(rowPay[6]));
-                    
+
                     //Pagos 2.0
-                    if(!rowPay[9].trim().isEmpty()){
+                    if (!rowPay[9].trim().isEmpty()) {
                         p.setTipoCadPago(CTipoCadenaPago.fromValue(rowPay[9]));
                         p.setCertPago(rowPay[10].getBytes());
                         p.setCadPago(rowPay[11]);
                         p.setSelloPago(rowPay[12].getBytes());
                     }
-                    
+
                     p.setNumOperacion(rowPay[13]);
-                    
-                    if(p.getRfcEmisorCtaOrd() != null && p.getRfcEmisorCtaOrd().equals("XEXX010101000"))
+
+                    if (p.getRfcEmisorCtaOrd() != null && p.getRfcEmisorCtaOrd().equals("XEXX010101000")) {
                         p.setNomBancoOrdExt(rowPay[14]);
-                    
+                    }
+
                     //ImpuestosPago
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP impuestosPago;
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.RetencionesP retencionesPago;
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.RetencionesP.RetencionP retPago;
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.TrasladosP trasladosPago;
                     mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP traPago;
-                    
-                    if(posiPagosImpuestosRet < posfPagosImpuestosRet || posiPagosImpuestosTra < posfPagosImpuestosTra){
+
+                    if (posiPagosImpuestosRet < posfPagosImpuestosRet || posiPagosImpuestosTra < posfPagosImpuestosTra) {
                         impuestosPago = obj.createPagosPagoImpuestosP();
                         /*
                         if(posiPagosImpuestosRet < posfPagosImpuestosRet){
@@ -1321,48 +1365,48 @@ public class ConstruirXML {
                             if(!retencionesPago.getRetencionP().isEmpty())
                                 impuestosPago.setRetencionesP(retencionesPago);
                         }
-                        */
-                        
-                        if(posiPagosImpuestosTra < posfPagosImpuestosTra){
+                         */
+
+                        if (posiPagosImpuestosTra < posfPagosImpuestosTra) {
                             trasladosPago = obj.createPagosPagoImpuestosPTrasladosP();
                             for (int j = posiPagosImpuestosTra; j < posfPagosImpuestosTra; j++) {
                                 String[] rowTra = layout.get(j).split(":")[1].trim().split("@");
-                                
-                                if(rowTra[0].equalsIgnoreCase("P"+cont)){
+
+                                if (rowTra[0].equalsIgnoreCase("P" + cont)) {
                                     traPago = obj.createPagosPagoImpuestosPTrasladosPTrasladoP();
                                     traPago.setImpuestoP(CImpuesto.fromValue(rowTra[1]));
                                     traPago.setBaseP(new BigDecimal(rowTra[2]));
                                     traPago.setTipoFactorP(CTipoFactor.fromValue(rowTra[4]));
-                                    
-                                    if(traPago.getTipoFactorP() != CTipoFactor.EXENTO){
+
+                                    if (traPago.getTipoFactorP() != CTipoFactor.EXENTO) {
                                         traPago.setImporteP(new BigDecimal(rowTra[3]));
                                         traPago.setTasaOCuotaP(new BigDecimal(rowTra[5]));
                                     }
-                                    
+
                                     trasladosPago.getTrasladoP().add(traPago);
                                 }
-                                
+
                             }
-                            
-                            if(!trasladosPago.getTrasladoP().isEmpty())
+
+                            if (!trasladosPago.getTrasladoP().isEmpty()) {
                                 impuestosPago.setTrasladosP(trasladosPago);
+                            }
                         }
-                        
+
                         p.setImpuestosP(impuestosPago);
                     }
-                    
+
                     //DocumentosPago
                     for (int h = posiDocPagos; h < posfDocPagos; h++) {
                         contDoc++;
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado dr = obj.createPagosPagoDoctoRelacionado();
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR impDr;
-                        
+
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.RetencionesDR retDr;
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.RetencionesDR.RetencionDR rDr;
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.TrasladosDR traDr;
                         mx.grupocorasa.sat.common.Pagos20.Pagos.Pago.DoctoRelacionado.ImpuestosDR.TrasladosDR.TrasladoDR tDr;
-                        
-                        
+
                         String[] rowDoc = layout.get(h).split(":")[1].trim().split("@");
                         if (rowDoc[0].equalsIgnoreCase("P" + cont)) {
                             dr.setFolio(rowDoc[1]);
@@ -1375,16 +1419,16 @@ public class ConstruirXML {
                             dr.setEquivalenciaDR(new BigDecimal(rowDoc[8]));
                             dr.setIdDocumento(rowDoc[9]);
                             dr.setObjetoImpDR(CObjetoImp.fromValue(rowDoc[10]));
-                            
-                            if(dr.getObjetoImpDR().equals(CObjetoImp.VALUE_2)){
+
+                            if (dr.getObjetoImpDR().equals(CObjetoImp.VALUE_2)) {
                                 impDr = obj.createPagosPagoDoctoRelacionadoImpuestosDR();
-                                
-                                if(posiDocPagosRet < posfDocPagosRet){
+
+                                if (posiDocPagosRet < posfDocPagosRet) {
                                     retDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRRetencionesDR();
 
-                                    for(int j = posiDocPagosRet; j < posfDocPagosRet; j++){
+                                    for (int j = posiDocPagosRet; j < posfDocPagosRet; j++) {
                                         String[] rowRet = layout.get(j).split(":")[1].trim().split("@");
-                                        if(rowRet[0].equalsIgnoreCase("DP"+contDoc)){
+                                        if (rowRet[0].equalsIgnoreCase("DP" + contDoc)) {
                                             rDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRRetencionesDRRetencionDR();
 
                                             rDr.setImpuestoDR(CImpuesto.fromValue(rowRet[1]));
@@ -1396,89 +1440,92 @@ public class ConstruirXML {
                                             retDr.getRetencionDR().add(rDr);
                                         }
                                     }
-                                    
-                                    if(!retDr.getRetencionDR().isEmpty())
+
+                                    if (!retDr.getRetencionDR().isEmpty()) {
                                         impDr.setRetencionesDR(retDr);
+                                    }
                                 }
 
-                                if(posiDocPagosTra < posfDocPagosTra){
+                                if (posiDocPagosTra < posfDocPagosTra) {
                                     traDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRTrasladosDR();
 
-                                    for(int j = posiDocPagosTra; j < posfDocPagosTra; j++){
+                                    for (int j = posiDocPagosTra; j < posfDocPagosTra; j++) {
                                         String[] rowTra = layout.get(j).split(":")[1].trim().split("@");
-                                        if(rowTra[0].trim().equalsIgnoreCase("DP"+contDoc)){
+                                        if (rowTra[0].trim().equalsIgnoreCase("DP" + contDoc)) {
                                             tDr = obj.createPagosPagoDoctoRelacionadoImpuestosDRTrasladosDRTrasladoDR();
 
                                             tDr.setImpuestoDR(CImpuesto.fromValue(rowTra[1]));
                                             tDr.setBaseDR(new BigDecimal(rowTra[2]));
                                             tDr.setTipoFactorDR(CTipoFactor.fromValue(rowTra[4]));
-                                            
-                                            if(tDr.getTipoFactorDR() != CTipoFactor.EXENTO){
+
+                                            if (tDr.getTipoFactorDR() != CTipoFactor.EXENTO) {
                                                 tDr.setImporteDR(new BigDecimal(rowTra[3]));
                                                 tDr.setTasaOCuotaDR(new BigDecimal(rowTra[5]));
-                                            }else{
+                                            } else {
                                                 isExento = true;
                                             }
-                                            
-                                            
-                                            
-                                            if(tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(BigDecimal.ZERO) == 0 && !isExento){
+
+                                            if (tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(BigDecimal.ZERO) == 0 && !isExento) {
                                                 isTasa0 = true;
                                             }
-                                            
-                                            if(tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(new BigDecimal("0.080000")) == 0){
+
+                                            if (tDr.getTasaOCuotaDR() != null && tDr.getTasaOCuotaDR().compareTo(new BigDecimal("0.080000")) == 0) {
                                                 isTasa8 = true;
                                             }
 
                                             traDr.getTrasladoDR().add(tDr);
                                         }
                                     }
-                                    
-                                    if(!isExento || !isTasa0 || !isTasa8){
+
+                                    if (!isExento || !isTasa0 || !isTasa8) {
                                         Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tExento = null;
                                         Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tCero = null;
                                         Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP tOcho = null;
-                                        for(Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP t : p.getImpuestosP().getTrasladosP().getTrasladoP()){
-                                            if(!isExento && t.getTipoFactorP() == CTipoFactor.EXENTO){
+                                        for (Pagos.Pago.ImpuestosP.TrasladosP.TrasladoP t : p.getImpuestosP().getTrasladosP().getTrasladoP()) {
+                                            if (!isExento && t.getTipoFactorP() == CTipoFactor.EXENTO) {
                                                 tExento = t;
                                             }
-                                            
-                                            if(!isTasa0 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(BigDecimal.ZERO) == 0 && t.getTipoFactorP() == CTipoFactor.TASA){
+
+                                            if (!isTasa0 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(BigDecimal.ZERO) == 0 && t.getTipoFactorP() == CTipoFactor.TASA) {
                                                 tCero = t;
                                             }
-                                            
-                                            if(!isTasa8 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(new BigDecimal("0.080000")) == 0){
+
+                                            if (!isTasa8 && t.getTasaOCuotaP() != null && t.getTasaOCuotaP().compareTo(new BigDecimal("0.080000")) == 0) {
                                                 tOcho = t;
                                             }
                                         }
-                                        
-                                        if(tExento != null)
+
+                                        if (tExento != null) {
                                             p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tExento);
-                                        if(tCero != null)
+                                        }
+                                        if (tCero != null) {
                                             p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tCero);
-                                        if(tOcho != null)
+                                        }
+                                        if (tOcho != null) {
                                             p.getImpuestosP().getTrasladosP().getTrasladoP().remove(tOcho);
-                                        
+                                        }
+
                                     }
-                                    
-                                    if(!traDr.getTrasladoDR().isEmpty())
+
+                                    if (!traDr.getTrasladoDR().isEmpty()) {
                                         impDr.setTrasladosDR(traDr);
+                                    }
                                 }
-                                
+
                                 dr.setImpuestosDR(impDr);
                             }
-                            
+
                             p.getDoctoRelacionado().add(dr);
                         }
                     }
-                            
+
                     pagos.getPago().add(p);
                 } catch (ParseException ex) {
                     ex.printStackTrace();
                     log.error("Error al obtener los pagos: ", ex);
                 }
             }
-            
+
             return pagos;
         } else {
             return null;
@@ -1489,13 +1536,13 @@ public class ConstruirXML {
         return null;
     }*/
     public void crearXml() throws Exception {
-        this.generarXml(ConectorDF.unidad + ":\\Facturas\\C_Interpretados\\");
+        this.generarXml(ConectorDF.unidad + "/Facturas/C_Interpretados/");
     }
-    
+
     public void crearXml(String destino) throws Exception {
         this.generarXml(destino);
     }
-    
+
     private void generarXml(String pathInt) throws Exception {
         //Obtenemos posiciones de tipo de datos
         posiConceptos = layout.indexOf("[CONCEPTOS]") + 1;
@@ -1510,34 +1557,34 @@ public class ConstruirXML {
         posfPercepciones = layout.indexOf("[/PERCEPCIONES]");
         posiDeducciones = layout.indexOf("[DEDUCCIONES]") + 1;
         posfDeducciones = layout.indexOf("[/DEDUCCIONES]");
-        
+
         posiConTraslados = layout.indexOf("[TRASLADADOS_CONCEPTOS]") + 1;
         posfConTraslados = layout.indexOf("[/TRASLADADOS_CONCEPTOS]");
-        
+
         posiConRetenciones = layout.indexOf("[RETENCIONES_CONCEPTOS]") + 1;
         posfConRetenciones = layout.indexOf("[/RETENCIONES_CONCEPTOS]");
-        
+
         posiLocalTraslados = layout.indexOf("[TRASLADOS_LOCALES]") + 1;
         posfLocalTraslados = layout.indexOf("[/TRASLADOS_LOCALES]");
-        
+
         posiLocalRetenciones = layout.indexOf("[TRASLADOS_LOCALES]") + 1;
         posfLocalRetenciones = layout.indexOf("[/TRASLADOS_LOCALES]");
-        
+
         posiPagos = layout.indexOf("[PAGOS]") + 1;
         posfPagos = layout.indexOf("[/PAGOS]");
-        
+
         posiDocPagos = layout.indexOf("[DOCTOS_PAGOS]") + 1;
         posfDocPagos = layout.indexOf("[/DOCTOS_PAGOS]");
-        
+
         posiPagosImpuestosRet = layout.indexOf("[PAGOS_IMPUESTOS_RETENIDOS]") + 1;
         posfPagosImpuestosRet = layout.indexOf("[/PAGOS_IMPUESTOS_RETENIDOS]");
-        
+
         posiPagosImpuestosTra = layout.indexOf("[PAGOS_IMPUESTOS_TRASLADOS]") + 1;
         posfPagosImpuestosTra = layout.indexOf("[/PAGOS_IMPUESTOS_TRASLADOS]");
-        
+
         posiDocPagosRet = layout.indexOf("[DOCTOS_PAGOS_RETENCIONES]") + 1;
         posfDocPagosRet = layout.indexOf("[/DOCTOS_PAGOS_RETENCIONES]");
-        
+
         posiDocPagosTra = layout.indexOf("[DOCTOS_PAGOS_TRASLADOS]") + 1;
         posfDocPagosTra = layout.indexOf("[/DOCTOS_PAGOS_TRASLADOS]");
 
@@ -1558,19 +1605,14 @@ public class ConstruirXML {
         Thread.currentThread().setContextClassLoader(new ClassLoader() {
         });
         CFDv4 cfd = null;
-        
+
         tipoComprobante = get("TIPO_COMPROBANTE:");
-        
+
         try {
-            String folder;
+            String folder = "/Facturas/config/";;
             String context;
             
-            if (!ConectorDF.unidad.contains(":")) {
-                folder = ":\\Facturas\\config\\";
-            } else {
-                folder = "\\Facturas\\config\\";
-            }
-            
+
             switch (tipoComprobante) {
                 case "D":
                     context = "mx.grupocorasa.sat.common.donat11";
@@ -1585,8 +1627,8 @@ public class ConstruirXML {
                     xslt = ConectorDF.unidad + folder + "ine10.xslt";
                     break;
                 case "T":
-                    context = "mx.grupocorasa.sat.common.CartaPorte20";
-                    xslt = ConectorDF.unidad + folder + "CartaPorte20.xslt";
+                    context = "mx.grupocorasa.sat.common.CartaPorte31";
+                    xslt = ConectorDF.unidad + folder + "CartaPorte31.xslt";
                     break;
                 case "P":
                     context = "mx.grupocorasa.sat.common.Pagos20";
@@ -1597,7 +1639,7 @@ public class ConstruirXML {
                     xslt = ConectorDF.unidad + folder + "cadenaoriginal_4_0.xslt";
                     break;
             }
-            
+
             cfd = new CFDv40(comp, context);
 
             /**
@@ -1607,13 +1649,12 @@ public class ConstruirXML {
             /**
              * ***************************************************
              */
-            
-            FileInputStream archivoKey = new FileInputStream(ConectorDF.unidad + folder + getRfcEmisor() + ".key");
-            FileInputStream archivoCer = new FileInputStream(ConectorDF.unidad + folder + getRfcEmisor() + ".cer");
-            String contra = util.leerXml(ConectorDF.unidad + folder + getRfcEmisor() + "_pass.txt").trim();
-            PrivateKey key = KeyLoader.loadPKCS8PrivateKey(archivoKey, contra);
+
+            FileInputStream archivoKey = new FileInputStream(pathKey);
+            FileInputStream archivoCer = new FileInputStream(pathCert);
+            PrivateKey key = KeyLoader.loadPKCS8PrivateKey(archivoKey, keyPass);
             X509Certificate cert = KeyLoader.loadX509Certificate(archivoCer);
-            
+
             try {
                 cfd.sellar(key, cert);
             } catch (Exception e) {
@@ -1624,25 +1665,25 @@ public class ConstruirXML {
                 Runtime.getRuntime().gc();
                 return;
             }
-            
+
             ErrorHandler eh = new ErrorHandler() {
-                
+
                 @Override
                 public void warning(SAXParseException exception) throws SAXException {
                     print("Warning: " + exception.getMessage());
                 }
-                
+
                 @Override
                 public void error(SAXParseException exception) throws SAXException {
                     print("Error: " + exception.getMessage());
                 }
-                
+
                 @Override
                 public void fatalError(SAXParseException exception) throws SAXException {
                     print("Fatal Error: " + exception.getMessage());
                 }
             };
-            
+
             this.sello = cfd.getSelloString();
             try {
                 FileOutputStream fos = new FileOutputStream(pathInt + nameXml + ".xml");
@@ -1653,7 +1694,7 @@ public class ConstruirXML {
                 log.error("Error al guardar el comprobante sellado: ", e);
             }
             Runtime.getRuntime().gc();
-            
+
             xmlNoTimbrado = (util.leerXml(pathInt + nameXml + ".xml"));
         } catch (Exception ex) {
             System.out.println("Excepcion al crear el comprobante: \n");
@@ -1706,11 +1747,11 @@ public class ConstruirXML {
 //            ConectorDF.log.error("Excepcion en el Thread.sleep de la clase ConstruirXML: " + ex.getMessage());
 //        }
     }
-    
+
     public String getNumEmpleado() {
         return numEmpleado;
     }
-    
+
     public Comprobante crearComprobante(mx.grupocorasa.sat.cfd._40.ObjectFactory of) throws Exception {
         Comprobante comp = of.createComprobante();
         Complemento comple = of.createComprobanteComplemento();
@@ -1718,12 +1759,12 @@ public class ConstruirXML {
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTime(date);
         java.time.LocalDateTime xgc = java.time.LocalDateTime.of(gc.get(Calendar.YEAR), gc.get(Calendar.MONTH) + 1, gc.get(Calendar.DAY_OF_MONTH), gc.get(Calendar.HOUR_OF_DAY), gc.get(Calendar.MINUTE), gc.get(Calendar.SECOND));
-        
+
         boolean mostrarLeyenda = !get("CONDICIONPAGO:").toLowerCase().contains("recibo");
         //Seteamos Comprobante
         tipoComprobante = get("TIPO_COMPROBANTE:");
         tipoComprobanteLayout = get("TIPO_COMPROBANTE:");
-        
+
         switch (tipoComprobante) {
             case "I":
                 tipoComprobante = "I";
@@ -1762,6 +1803,8 @@ public class ConstruirXML {
             case "T":
                 tipoComprobante = "T";
                 cTipoComp = CTipoDeComprobante.T;
+                comple.getAny().add(this.getCartaPorte());
+                comp.setComplemento(comple);
                 break;
             case "P":
                 tipoComprobante = "P";
@@ -1770,7 +1813,7 @@ public class ConstruirXML {
                 comp.setComplemento(comple);
                 break;
         }
-        
+
         comp.setTipoDeComprobante(cTipoComp);
         comp.setFecha(xgc);
         fechaExp = formatFecha(date);
@@ -1778,7 +1821,7 @@ public class ConstruirXML {
         comp.setEmisor(getEmisor(of));
         comp.setReceptor(getReceptor(of));
         comp.setConceptos(getConceptos(of));
-        
+
         comp.getCfdiRelacionados().add(getCfdiRelacionados());
 
         /*String condicionPago = get("CONDICIONPAGO:");
@@ -1795,26 +1838,26 @@ public class ConstruirXML {
                 //comp.setMotivoDescuento(get("MOTIVODESCUENTO"));
             }
         }
-        
+
         metodoPago = get("METODOPAGO:");
-        
+
         if (tipoComprobanteLayout.equalsIgnoreCase("N")) {
             numEmpleado = get("NUMEMPLEADO:");
         }
-        
+
         comp.setLugarExpedicion(get("LUGAREXPEDICION:"));
         comp.setMetodoPago(get("TIPO_COMPROBANTE:").equals("T") || get("TIPO_COMPROBANTE:").equals("P") ? null : CMetodoPago.fromValue(metodoPago));
         comp.setFormaPago(get("TIPO_COMPROBANTE:").equals("T") || get("TIPO_COMPROBANTE:").equals("P") || get("TIPO_COMPROBANTE:").equals("N") ? null : CFormaPago.fromValue(get("FORMAPAGO:")));
         String moneda = get("MONEDA:");
         String tipoCambio = get("TIPOCAMBIO:");
-        
+
         if (!moneda.equalsIgnoreCase("MXN") && !moneda.equalsIgnoreCase("XXX")) {
             comp.setMoneda(CMoneda.fromValue(moneda));
             comp.setTipoCambio(get("TIPO_COMPROBANTE:").equals("P") ? null : new BigDecimal(tipoCambio));
         } else {
             comp.setMoneda(CMoneda.fromValue(moneda));
         }
-        
+
         serie = get("SERIE:");
         comp.setSerie(serie);
         folio = get("FOLIO:");
@@ -1822,14 +1865,14 @@ public class ConstruirXML {
         comp.setSubTotal(tipoComprobanteLayout.equalsIgnoreCase("P") ? BigDecimal.ZERO : util.redondear(new BigDecimal(get("SUBTOTAL:"))));
         total = tipoComprobanteLayout.equalsIgnoreCase("P") ? BigDecimal.ZERO : util.redondear(new BigDecimal(get("TOTALNETO:")));
         comp.setTotal(total);
-        
+
         comp.setImpuestos(getImpuestos(of));
-        
+
         comp.setNoCertificado(noCertificado);
         comp.setSello("");
         comp.setCertificado("");
         comp.setExportacion(CExportacion.VALUE_1);
-        
+
         leyenda = get("LEYENDA:");
 //        String cta = get("NUMCTAPAGO");
 //
@@ -1841,7 +1884,7 @@ public class ConstruirXML {
         //comp.setComplemento(comple);
         return comp;
     }
-    
+
     private CfdiRelacionados getCfdiRelacionados() throws Exception {
         CfdiRelacionados cfd = new CfdiRelacionados();
         String sd = get("RELACIONCFDI:");
@@ -1858,11 +1901,11 @@ public class ConstruirXML {
             return null;
         }
     }
-    
+
     private Donatarias crearDonatarias(boolean mostrarLeyenda) throws Exception {
         Donatarias don = new Donatarias();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        
+
         if (mostrarLeyenda) {
             don.setLeyenda("Este comprobante ampara un donativo, el cual será destinado por la donataria a los fines propios de su objeto social. "
                     + "En el caso de que los bienes donados hayan sido deducidos previamente para los efectos del impuesto sobre la renta, este donativo no es deducible. "
@@ -1871,7 +1914,7 @@ public class ConstruirXML {
             don.setLeyenda("");
         }
         don.setVersion("1.1");
-        
+
         java.time.LocalDate cal;
         /**
          * ******************CERNAS*******************
@@ -1905,17 +1948,18 @@ public class ConstruirXML {
 //        don.setNoAutorizacion("GOBIERNO");325-SAT-09-IV-E-73507
         return don;
     }
-    
+
     private Comprobante.Receptor getReceptor(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Receptor rec = of.createComprobanteReceptor();
         rec.setUsoCFDI(CUsoCFDI.fromValue(get("USOCFDI:")));
-        
+        String regimenReceptor = get("REGIMENFISCAL2:");
+
         nombreReceptor = get("NOMBRE2:");
         rec.setNombre(nombreReceptor);
         rfcReceptor = get("RFC2:");
         rec.setRfc(rfcReceptor);
         rec.setDomicilioFiscalReceptor(get("DOMICILIOFISCAL:"));
-        rec.setRegimenFiscalReceptor(CRegimenFiscal.fromValue(get("REGIMENFISCAL2:")));
+        rec.setRegimenFiscalReceptor(regimenReceptor.isEmpty() ? null : CRegimenFiscal.fromValue(regimenReceptor));
         rec.setNumRegIdTrib(null);
         if (rec.getNumRegIdTrib() != null && rfcReceptor.equalsIgnoreCase("XEXX010101000")) {
             rec.setResidenciaFiscal(CPais.fromValue(get("RESIDENCIAFISCAL:")));
@@ -1931,18 +1975,17 @@ public class ConstruirXML {
             receptor.addProperty("estado", get("ESTADO2:"));
             receptor.addProperty("pais", get("PAIS2:"));
             receptor.addProperty("cp", get("CP2:"));
-            
+
             json.add("receptor", receptor);
         }
         return rec;
     }
-    
+
     private Comprobante.Emisor getEmisor(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Emisor emi = of.createComprobanteEmisor();
-        
-        String regi = get("REGIMENFISCAL:");
-        emi.setRegimenFiscal(CRegimenFiscal.fromValue(regi));
-        
+
+        emi.setRegimenFiscal(CRegimenFiscal.fromValue(regimenFiscalEmisor));
+
         nombreEmisor = get("NOMBRE1:");
         emi.setNombre(nombreEmisor);
         rfcEmisor = get("RFC1:");
@@ -1959,13 +2002,13 @@ public class ConstruirXML {
             emisor.addProperty("estado", get("ESTADO1:"));
             emisor.addProperty("pais", get("PAIS1:"));
             emisor.addProperty("cp", get("CP1:"));
-            
+
             json.add("emisor", emisor);
         }
-        
+
         return emi;
     }
-    
+
     private Comprobante.Conceptos getConceptos(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Conceptos cons = of.createComprobanteConceptos();
         Comprobante.Conceptos.Concepto con;
@@ -1979,9 +2022,10 @@ public class ConstruirXML {
         final int PRECIO = 6;
         final int DESCUENTO = 7;
         final int IMPORTE = 8;
+        final int PREDIAL = 9;
 
-        //       0             1       2        3               4        5            6          7          8
-        //ClaveProdServ@ClaveUnidad@Unidad@NoIdentificacion@Cantidad@Descripcion@ValorUnitario@Descuento@Importe
+        //       0             1       2        3               4        5            6          7          8       9
+        //ClaveProdServ@ClaveUnidad@Unidad@NoIdentificacion@Cantidad@Descripcion@ValorUnitario@Descuento@Importe@Predial
         for (int i = posiConceptos; i < posfConceptos; i++) {
             con = of.createComprobanteConceptosConcepto();
             String temp = layout.get(i);
@@ -1991,7 +2035,11 @@ public class ConstruirXML {
             BigDecimal precio = new BigDecimal(c.get(PRECIO));
             BigDecimal descuento = new BigDecimal(c.get(DESCUENTO));
             BigDecimal importe = new BigDecimal(c.get(IMPORTE));
-            
+            String predial = "";
+            if (c.size() == 10) {
+                predial = c.get(PREDIAL).trim();
+            }
+
             if (tipoComprobanteLayout.equalsIgnoreCase("N") || tipoComprobanteLayout.equalsIgnoreCase("P")) {
                 con.setCantidad(cant.setScale(0, RoundingMode.HALF_UP));
             } else {
@@ -2006,6 +2054,14 @@ public class ConstruirXML {
             con.setClaveUnidad(CClaveUnidad.fromValue(c.get(CLAVEUNIDAD).trim()));
             if (!c.get(UNIDAD).trim().isEmpty() && !c.get(UNIDAD).trim().equals(".")) {
                 con.setUnidad(c.get(UNIDAD).trim());
+            }
+
+            //Cuenta Predial
+            if (!predial.isEmpty()) {
+                Comprobante.Conceptos.Concepto.CuentaPredial cuentaPred = of.createComprobanteConceptosConceptoCuentaPredial();
+
+                cuentaPred.setNumero(predial);
+                con.getCuentaPredial().add(cuentaPred);
             }
 
             //log.info(con.getClaveProdServ() + " - " + con.getClaveUnidad());
@@ -2028,7 +2084,7 @@ public class ConstruirXML {
                             tras.setTasaOCuota(new BigDecimal(t.get(4).trim()).setScale(6, RoundingMode.HALF_UP));
                             //tras.setImporte(util.redondear(new BigDecimal(t.get(5).trim())));
                             tras.setImporte(new BigDecimal(t.get(5).trim()));
-                            
+
                             traslados.getTraslado().add(tras);
                         }
                     }
@@ -2055,7 +2111,7 @@ public class ConstruirXML {
                             rete.setTasaOCuota(new BigDecimal(r.get(4)).setScale(6, RoundingMode.HALF_UP));
                             //rete.setImporte(util.redondear(new BigDecimal(r.get(5))));
                             rete.setImporte(new BigDecimal(r.get(5)));
-                            
+
                             retenciones.getRetencion().add(rete);
                         }
                     }
@@ -2064,21 +2120,21 @@ public class ConstruirXML {
                     }
                 }
             }
-            
-            if((imp.getTraslados() != null && !imp.getTraslados().getTraslado().isEmpty()) || (imp.getRetenciones() != null && !imp.getRetenciones().getRetencion().isEmpty())){
+
+            if ((imp.getTraslados() != null && !imp.getTraslados().getTraslado().isEmpty()) || (imp.getRetenciones() != null && !imp.getRetenciones().getRetencion().isEmpty())) {
                 con.setObjetoImp(CObjetoImp.VALUE_2);
-            }else{
+            } else {
                 con.setObjetoImp(CObjetoImp.VALUE_1);
             }
-            
+
             if (!tipoComprobanteLayout.equalsIgnoreCase("N") && !tipoComprobanteLayout.equalsIgnoreCase("P")) {
                 con.setNoIdentificacion(c.get(NOIDENTIFICACION));
             }
-            
+
             if (imp.getTraslados() != null || imp.getRetenciones() != null) {
                 con.setImpuestos(imp);
             }
-            
+
             if (tipoComprobanteLayout.equalsIgnoreCase("P")) {
                 con.setValorUnitario(precio.setScale(0, RoundingMode.HALF_UP));
             } else {
@@ -2095,17 +2151,17 @@ public class ConstruirXML {
             cons.getConcepto().add(con);
             cont++;
         }
-        
+
         return cons;
     }
-    
+
     private Comprobante.Impuestos getImpuestos(mx.grupocorasa.sat.cfd._40.ObjectFactory of) {
         Comprobante.Impuestos impuestos = of.createComprobanteImpuestos();
         Comprobante.Impuestos.Retenciones rets = of.createComprobanteImpuestosRetenciones();
         Comprobante.Impuestos.Traslados tras = of.createComprobanteImpuestosTraslados();
         Comprobante.Impuestos.Retenciones.Retencion ret;
         Comprobante.Impuestos.Traslados.Traslado tra;
-        
+
         if (!(tipoComprobanteLayout.equalsIgnoreCase("N") || tipoComprobanteLayout.equalsIgnoreCase("recibo de nomina") || tipoComprobanteLayout.equalsIgnoreCase("D") || tipoComprobanteLayout.equalsIgnoreCase("recibo de donativo") || tipoComprobanteLayout.equalsIgnoreCase("T") || tipoComprobanteLayout.equalsIgnoreCase("P"))) {
             //Seteamos Retenciones
             for (int i = posiRetenidos; i < posfRetenidos; i++) {
@@ -2113,7 +2169,7 @@ public class ConstruirXML {
                 String[] temp = layout.get(i).split(":")[1].split("@");
                 ret.setImpuesto(CImpuesto.fromValue(temp[0].trim()));
                 ret.setImporte(new BigDecimal(temp[1].trim()));
-                
+
                 if (ret.getImporte().doubleValue() > 0.0) {
                     rets.getRetencion().add(ret);
                 }
@@ -2128,7 +2184,7 @@ public class ConstruirXML {
                 tra.setImporte(new BigDecimal(temp[3].trim()));
                 tra.setTipoFactor(CTipoFactor.fromValue(temp[1].trim()));
                 tra.setBase(new BigDecimal(temp[4].trim()));
-                
+
                 tras.getTraslado().add(tra);
             }
 
@@ -2141,17 +2197,17 @@ public class ConstruirXML {
                 impuestos.setTotalImpuestosRetenidos(new BigDecimal(get("TOTALRETENIDOS:")));
                 impuestos.setRetenciones(rets);
             }
-            
+
             return impuestos;
         } else {
             return null;
         }
     }
-    
+
     private void print(String msg) {
         JOptionPane.showMessageDialog(null, msg);
     }
-    
+
     private String get(String dato) {
         if ((xmlNoTimbrado == null || xmlNoTimbrado.isEmpty()) || (dato.compareTo(dato.toUpperCase()) == 0)) {
             String valor = null;
@@ -2172,13 +2228,13 @@ public class ConstruirXML {
             } else if (valor.isEmpty()) {
                 valor = "";
             }
-            
+
             return valor.trim();
         } else {
             return getDatoXml(dato);
         }
     }
-    
+
     private String getDatoXml(String dato) {
         String padre;
         if (dato.contains("1")) {
@@ -2188,7 +2244,7 @@ public class ConstruirXML {
         }
         return "";
     }
-    
+
     public String getAddendaKlyns() {
         StringBuilder sb = new StringBuilder();
         sb.append("<cfdi:Addenda>");
@@ -2198,8 +2254,8 @@ public class ConstruirXML {
         sb.append("</cfdi:Addenda>");
         return sb.toString();
     }
-    
-    private String getAddendaBioPappel(BioPappel add){
+
+    private String getAddendaBioPappel(BioPappel add) {
         StringBuilder sb = new StringBuilder();
         String salto = "\r\n";
         sb.append("<cfdi:Addenda>").append(salto);
@@ -2227,55 +2283,57 @@ public class ConstruirXML {
         sb.append("\t\t</OrdenCompra>").append(salto);
         sb.append("\t</BioPappel>").append(salto);
         sb.append("</cfdi:Addenda>").append(salto);
-        
+
         return sb.toString();
     }
-    
+
     private String getDato(Document doc, String element, String dato) {
         doc.getDocumentElement().normalize();
         NodeList lista = doc.getElementsByTagName(element);
-        
+
         Node nodo = lista.item(0);
-        
+
         if (nodo.getNodeType() == Node.ELEMENT_NODE) {
             org.w3c.dom.Element elementoReceptor = (org.w3c.dom.Element) nodo;
-            
+
             return (getTagValue(dato, elementoReceptor));
         } else {
             return "";
         }
     }
-    
+
     private String getTagValue(String sTag, org.w3c.dom.Element eElement) {
         String valor = eElement.getAttribute(sTag).trim();
         return valor;
     }
-    
+
     public String getNameXml() {
         return nameXml;
     }
-    
+
     public String getPathProduccion() {
         return pathPro;
     }
-    
+
     public String getFolio() {
         return folio;
     }
-    
+
     public String getRfcEmisor() {
         return rfcEmisor;
     }
-    
+
     public String getFechaExp() {
-        
+
         return fechaExp;
     }
-    
+
     public String getFechaTim() {
-        return formatFecha(new Date());
+        Date f = new Date();
+        f.setTime(f.getTime() - 60000l);
+        return formatFecha(f);
     }
-    
+
     public String getXmlNoTimbrado() {
         if (xmlNoTimbrado != null) {
             if (xmlNoTimbrado.contains("xmlns:tfd=\"http://www.sat.gob.mx/TimbreFiscalDigital\"")) {
@@ -2284,42 +2342,42 @@ public class ConstruirXML {
         }
         return xmlNoTimbrado;
     }
-    
+
     public BigDecimal getTotal() {
         return total;
     }
-    
+
     public String getNombreEmisor() {
         return nombreEmisor;
     }
-    
+
     public String getLayoutCadena() {
         return layoutCadena;
     }
-    
+
     public String getSerie() {
         return serie;
     }
-    
+
     public String getNoCertificado() {
         return noCertificado;
     }
-    
+
     public void setNoCertificado(String noCertificado) {
         this.noCertificado = noCertificado;
     }
-    
+
     public String getSello() {
         return this.sello;
     }
-    
+
     private String formatFecha(Date date) {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
         return format.format(date);
     }
-    
+
     private Comprobante sellar(Comprobante document, PrivateKey key, X509Certificate cert) throws Exception {
-        
+
         cert.checkValidity();
         String signature = getSignature(key);
         document.setSello(signature);
@@ -2331,7 +2389,7 @@ public class ConstruirXML {
         document.setNoCertificado(new String(bi.toByteArray()));
         return document;
     }
-    
+
     private String getSignature(PrivateKey key) throws Exception {
         byte[] bytes = getCadenaOriginal();
         Signature sig = Signature.getInstance("SHA1withRSA");
@@ -2341,7 +2399,7 @@ public class ConstruirXML {
         Base64 b64 = new Base64(-1);
         return b64.encodeToString(signed);
     }
-    
+
     private byte[] getCadenaOriginal() {
         try {
             File xslt_file = new File(xslt);
